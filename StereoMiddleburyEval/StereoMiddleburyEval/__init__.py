@@ -212,6 +212,7 @@ class StereoMiddleburyEval():
             # Check zip file doesn't already exist
             if (not os.path.exists(zip_filepath)):
                 print("Downloading from: "+url)
+                print("Middlebury servers can be quite slow so go make a cup of tea.")
                 # download file from middlebury server
                 os.system("curl -o "+zip_filepath+" -L "+url)
             else:
