@@ -1,3 +1,4 @@
+"""This module tests functionality of stereomideval module"""
 import os
 from stereomideval import Dataset, Eval
 
@@ -8,7 +9,7 @@ if __name__ == "__main__":
     if not os.path.exists(dataset_folder):
         os.makedirs(dataset_folder)
 
-    # Initalise Dataset object
+    # Initalise stereomideval Dataset object
     stmid_dataset = Dataset()
 
     # Get list of scene in dataset (2014) and iterate through them
@@ -16,10 +17,11 @@ if __name__ == "__main__":
         # Download dataset from middlebury servers
         # will only download it if it hasn't already been downloaded
         print("Downloading data for scene '"+scenename+"'...")
-        stmid_dataset.download_dataset(scenename,dataset_folder) 
+        stmid_dataset.download_scene_data(scenename,dataset_folder) 
         # Load scene data from downloaded folder
         print("Loading data for scene '"+scenename+"'...")
-        left_image,right_image,disp_image,depth_image = stmid_dataset.load_scene_data(scenename,dataset_folder,True)
+        scene_data = stmid_dataset.load_scene_data(scenename,dataset_folder,True)
+        disp_image = scene_data.disp_image
         # Demonstate evaluation by comparing the ground truth to itself
         stmid_eval = Eval(disp_image,disp_image)
         stmid_eval.evaluate()

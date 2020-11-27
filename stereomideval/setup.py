@@ -1,3 +1,4 @@
+"""Setup module to build stereomideval module"""
 from os.path import abspath, dirname, join, normpath, relpath
 from shutil import rmtree
 import glob
@@ -24,12 +25,14 @@ class CleanCommand(Command):
         super().__init__(dist)
 
     def initialize_options(self):
+        """Inital options for clean command"""
         self.all = None
 
     def finalize_options(self):
-        pass
+        """Finalise options for clean command"""
 
     def run(self):
+        """Run clean command"""
         script_path = normpath(abspath(dirname(__file__)))
         for path_spec in self.CLEAN_FILES:
             # Make paths absolute and relative to this path
@@ -43,7 +46,7 @@ class CleanCommand(Command):
 
 setuptools.setup(
     name="stereo-mideval",
-    version="1.0.4",
+    version="1.0.5",
     author="Ben Knight",
     author_email="bknight@i3drobotics.com",
     description="Evaluation dataset and tools from Middlebury Stereo Evaulation data 2014.",

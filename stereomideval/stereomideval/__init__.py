@@ -1,3 +1,9 @@
+"""
+Stereo Middlebury Evaluation package
+
+This module is for loading the stereo Middlebury dataset loading
+and includes tools evaluatating stereo matching algorithms
+"""
 import os
 import glob
 import re
@@ -7,6 +13,7 @@ import numpy as np
 import cv2
 import wget
 
+# List of available scenes in the Middlebury stereo dataset (2014)
 STEREO_MIDDLEBURY_SCENES = [
     "Adirondack",
     "Backpack",
@@ -33,12 +40,14 @@ STEREO_MIDDLEBURY_SCENES = [
     "Vintage"
 ]
 
-# define StereoMiddleburyEval exceptions
+# Exceptions
 class InvalidSceneName(Exception):
+    """Invalid scene exception"""
     def __str__(self):
         return "Invalid scene name. Use getSceneList() to get full list of scenes available"
 
 class MalformedPFM(Exception):
+    """Malformed PFM file exception"""
     def __init__(self, message="Malformed PFM file"):
         self.message = message
         super().__init__(self.message)
@@ -47,6 +56,7 @@ class MalformedPFM(Exception):
         return self.message
 
 class PathNotFound(Exception):
+    """Path not found exception"""
     def __init__(self, filename, message="Path does not exist: "):
         self.filename = filename
         self.message = message
@@ -55,32 +65,34 @@ class PathNotFound(Exception):
     def __str__(self):
         return self.message+self.filename
 
-class EvalType:
-    def __init__(self):
-        self.eval_type_index_all = 0
-
-    def __setattr__(self, attr, value):
-        raise Exception("Cannot change value of evaulation type class")
-
-    def all(self):
-        return self.eval_type_index_all
-
 class Eval:
-    def __init__(self,ground_truth,test_data,evaluation_type=EvalType.all):
-        self.evaluation_type = evaluation_type
+    """Evaluate disparity image against ground truth"""
+    def __init__(self,ground_truth,test_data):
         self.ground_truth = ground_truth
         self.test_data = test_data
 
     def evaluate(self):
-        if self.evaluation_type == EvalType.all:
-            pass
+        """ Run evaluation """
+
+class SceneData:
+    """
+    Scene data
+
+    Data returned by scene loading. Used in Dataset:load_scene_data() 
+    """
+    def __init__(self,left_image,right_image,disp_image,depth_image):
+        self.left_image = left_image
+        self.right_image = right_image
+        self.disp_image = disp_image
+        self.depth_image = depth_image
 
 class Dataset:
+    """Download and read data from stereo Middlesbury dataset (2014)"""
     def __init__(self):
         pass
 
     def normalise_pfm_data(self,data,max_val_pct=0.1):
-        # Normalise disparity pfm image
+        """Normalise disparity pfm image"""
         norm_pfm_data = np.where(data == np.inf, -1, data)
         max_val = np.max(norm_pfm_data)
         max_val += max_val * max_val_pct
@@ -91,6 +103,7 @@ class Dataset:
         return norm_pfm_data
 
     def disp_to_depth(self,disp,cal_filepath):
+        """Convert from disparity to depth using calibration file"""
         # Sample calib.txt file for one of the full-size training image pairs:
         # cam0=[3997.684 0 1176.728; 0 3997.684 1011.728; 0 0 1]
         # cam1=[3997.684 0 1307.839; 0 3997.684 1011.728; 0 0 1]
@@ -141,8 +154,7 @@ class Dataset:
         return depth
 
     def load_pfm(self,filepath):
-        # Load pfm data from file
-
+        """Load pfm data from file"""
         # Check file exists
         if not os.path.exists(filepath):
             raise PathNotFound(filepath,"Pfm file does not exist")
@@ -188,71 +200,86 @@ class Dataset:
         data = cv2.flip(data,0)
         return data, scale
 
-    def load_scene_data(self,scene_name,dataset_folder,display_images=False):
-        # Load scene data from scene folder
-        if self.check_valid_scene_name(scene_name):
-            display_time = 500
-            # Get name of disparity image (pfm) in folder
-            disp_filename = os.path.join(dataset_folder,scene_name,"disp0.pfm")
-            # Check disparity file exists
-            if not os.path.exists(disp_filename):
-                print("Disparity pfm file does not exist")
-                print(disp_filename)
-                raise PathNotFound(disp_filename,"Disparity pfm file does not exist")
-            # Load disparity file to numpy image
-            disp_image, _ = self.load_pfm(disp_filename)
-            if display_images:
-                # Display disparity image in opencv window
-                norm_disp_image = self.normalise_pfm_data(disp_image)
-                norm_disp_image_resize = cv2.resize(norm_disp_image, dsize=(0, 0), fx=0.2, fy=0.2)
-                cv2.imshow('image', cv2.applyColorMap(norm_disp_image_resize, cv2.COLORMAP_JET))
-                cv2.waitKey(display_time)
+    def load_scene_disparity(self,scene_name,dataset_folder,display_images=False,display_time=500):
+        """Load disparity image from scene folder"""
+        # Get name of disparity image (pfm) in folder
+        disp_filename = os.path.join(dataset_folder,scene_name,"disp0.pfm")
+        # Check disparity file exists
+        if not os.path.exists(disp_filename):
+            print("Disparity pfm file does not exist")
+            print(disp_filename)
+            raise PathNotFound(disp_filename,"Disparity pfm file does not exist")
+        # Load disparity file to numpy image
+        disp_image, _ = self.load_pfm(disp_filename)
+        if display_images:
+            # Display disparity image in opencv window
+            norm_disp_image = self.normalise_pfm_data(disp_image)
+            norm_disp_image_resize = cv2.resize(norm_disp_image, dsize=(0, 0), fx=0.2, fy=0.2)
+            cv2.imshow('image', cv2.applyColorMap(norm_disp_image_resize, cv2.COLORMAP_JET))
+            cv2.waitKey(display_time)
+        return disp_image
 
-            # Define calibration file in scene folder
+    def load_scene_stereo_pair(self,
+            scene_name,dataset_folder,display_images=False,display_time=500):
+        """Load stereo pair images from scene folder"""
+        # Define left and right image files in scene folder
+        left_image_filename = os.path.join(dataset_folder,scene_name,"im0.png")
+        right_image_filename = os.path.join(dataset_folder,scene_name,"im1.png")
+        # Check left and right image files exist
+        if not os.path.exists(left_image_filename) or not os.path.exists(right_image_filename):
+            print("Left or right image file does not exist")
+            print(left_image_filename)
+            print(right_image_filename)
+            raise PathNotFound(
+                left_image_filename+","+right_image_filename,
+                "Left or right image file does not exist")
+        # Read left and right image files to numpy image
+        left_image = cv2.imread(left_image_filename,cv2.IMREAD_UNCHANGED)
+        right_image = cv2.imread(right_image_filename,cv2.IMREAD_UNCHANGED)
+        if display_images:
+            # Display left and right image files to OpenCV window
+            left_image_resize = cv2.resize(left_image, dsize=(0, 0), fx=0.2, fy=0.2)
+            right_image_resize = cv2.resize(right_image, dsize=(0, 0), fx=0.2, fy=0.2)
+            cv2.imshow('image', left_image_resize)
+            cv2.waitKey(display_time)
+            cv2.imshow('image', right_image_resize)
+            cv2.waitKey(display_time)
+        return left_image, right_image
+
+    def load_scene_data(self,scene_name,dataset_folder,display_images=False,display_time=500):
+        """Load scene data from scene folder"""
+        if self.check_valid_scene_name(scene_name):
+            # Load disparity image from scene folder
+            disp_image = self.load_scene_disparity(
+                scene_name,dataset_folder,display_images,display_time)
+
+            # Define path to calibration file in scene folder
             cal_file = os.path.join(dataset_folder,scene_name,"calib.txt")
             # Calculate depth image from disparity using calibration file
             depth_image = self.disp_to_depth(disp_image,cal_file)
 
-            # Define left and right image files in scene folder
-            left_image_filename = os.path.join(dataset_folder,scene_name,"im0.png")
-            right_image_filename = os.path.join(dataset_folder,scene_name,"im1.png")
-            # Check left and right image files exist
-            if not os.path.exists(left_image_filename) or not os.path.exists(right_image_filename):
-                print("Left or right image file does not exist")
-                print(left_image_filename)
-                print(right_image_filename)
-                raise PathNotFound(
-                    left_image_filename+","+right_image_filename,
-                    "Left or right image file does not exist")
-            # Read left and right image files to numpy image
-            left_image = cv2.imread(left_image_filename,cv2.IMREAD_UNCHANGED)
-            right_image = cv2.imread(right_image_filename,cv2.IMREAD_UNCHANGED)
-            if display_images:
-                # Display left and right image files to OpenCV window
-                left_image_resize = cv2.resize(left_image, dsize=(0, 0), fx=0.2, fy=0.2)
-                right_image_resize = cv2.resize(right_image, dsize=(0, 0), fx=0.2, fy=0.2)
-                cv2.imshow('image', left_image_resize)
-                cv2.waitKey(display_time)
-                cv2.imshow('image', right_image_resize)
-                cv2.waitKey(display_time)
+            # Load stereo pair images from scene folder
+            left_image, right_image = self.load_scene_stereo_pair(
+                scene_name,dataset_folder,display_images,display_time)
 
-            return left_image,right_image,disp_image,depth_image
+            return SceneData(left_image,right_image,disp_image,depth_image)
         raise InvalidSceneName()
 
     def get_scene_list(self):
-        # Return full list of scenes available
+        """Return full list of scenes available"""
         return STEREO_MIDDLEBURY_SCENES
 
     def get_url_from_scene(self,scene_name):
+        """Get URL on middlebury servers for 2014 dataset for chosen scene"""
         if not self.check_valid_scene_name(scene_name):
             raise InvalidSceneName()
-        # Get URL on middlebury servers for 2014 dataset for chosen scene
         base_url = "http://vision.middlebury.edu/stereo/data/scenes2014/zip/"
         url = base_url+scene_name+"-perfect.zip"
         return url
 
-    #create this bar_progress method which is invoked automatically from wget
+    
     def bar_progress(self,current, total):
+        """Progress bar to display download progress in wget"""
         base_progress_msg = "Downloading: %d%% [%d / %d] bytes"
         progress_message = base_progress_msg % (current / total * 100, current, total)
         # Don't use print() as it will print in new line every time.
@@ -260,9 +287,11 @@ class Dataset:
         sys.stdout.flush()
 
     def check_valid_scene_name(self,scene_name):
+        """Check scene name is avaiable for download"""
         return scene_name in self.get_scene_list()
 
-    def download_dataset(self,scene_name,output_folder):
+    def download_scene_data(self,scene_name,output_folder):
+        """Download scene data"""
         if self.check_valid_scene_name(scene_name):
             # Check output folder exists
             if os.path.exists(output_folder):
