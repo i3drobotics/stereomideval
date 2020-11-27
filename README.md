@@ -2,7 +2,7 @@
 ```
 cd StereoMiddleburyEval
 python -m pip install --user --upgrade twine wheel
-python setup.py clean --all && python setup.py rotate --match=.tar.gz,.whl,.egg,.egg-info --keep=0
+python setup.py clean --all
 python setup.py sdist bdist_wheel
 ```
 # Upload to Test Pip
