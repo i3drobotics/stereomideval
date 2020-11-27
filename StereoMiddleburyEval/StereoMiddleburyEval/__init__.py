@@ -209,33 +209,41 @@ class StereoMiddleburyEval():
         sys.stdout.flush()
 
     def downloadDataset(self,scene_name,output_folder):
-        # Download dataset from middlebury servers
-        # Get url from scene name
-        url = self.getURLfromScene(scene_name)
-        # Get name of scene data folder
-        scene_output_folder = os.path.join(output_folder,scene_name)
-        # Define destination name for zip file
-        zip_filepath = os.path.join(output_folder,scene_name+".zip")
-        # Check scene folder doesn't already exist
-        if (not os.path.exists(scene_output_folder)):
-            # Check zip file doesn't already exist
-            if (not os.path.exists(zip_filepath)):
-                print("Downloading from: "+url)
-                # download file from middlebury server
-                wget.download(url, zip_filepath, bar=self.bar_progress)
+        # Check output folder exists
+        if (os.path.exists(output_folder)):
+            # Download dataset from middlebury servers
+            # Get url from scene name
+            url = self.getURLfromScene(scene_name)
+            # Get name of scene data folder
+            scene_output_folder = os.path.join(output_folder,scene_name)
+            # Define destination name for zip file
+            zip_filepath = os.path.join(output_folder,scene_name+".zip")
+            # clean-up tmp files from incomplete downloads
+            tmp_files = glob.glob(os.path.join(output_folder,"*tmp"))
+            for tmp_file in tmp_files:
+                os.remove(tmp_file)
+            # Check scene folder doesn't already exist
+            if (not os.path.exists(scene_output_folder)):
+                # Check zip file doesn't already exist
+                if (not os.path.exists(zip_filepath)):
+                    print("Downloading from: "+url)
+                    # download file from middlebury server
+                    wget.download(url, zip_filepath, bar=self.bar_progress)
+                else:
+                    print("Zip file for dataset already exists here, skipping download of file: "+zip_filepath)
+                print("Extracting zip...")
+                # unzip downloaded file
+                with zipfile.ZipFile(zip_filepath,"r") as zip_ref:
+                    zip_ref.extractall(output_folder)
+                print("Organising scene folder")
+                # rename scene folder to remove '-perfect'
+                os.rename(os.path.join(output_folder,scene_name+"-perfect"),scene_output_folder)
+                # removing zip file
+                os.remove(zip_filepath)
             else:
-                print("Zip file for dataset already exists here, skipping download of file: "+zip_filepath)
-            print("Extracting zip...")
-            # unzip downloaded file
-            with zipfile.ZipFile(zip_filepath,"r") as zip_ref:
-                zip_ref.extractall(output_folder)
-            print("Organising scene folder")
-            # rename scene folder to remove '-perfect'
-            os.rename(os.path.join(output_folder,scene_name+"-perfect"),scene_output_folder)
-            # removing zip file
-            os.remove(zip_filepath)
+                print("Dataset already exists here, skipping re-download of "+scene_name)
         else:
-            print("Dataset already exists here, skipping re-download of "+scene_name)
+            raise Exception('Output folder not found for storing datasets')
 
 if __name__ == "__main__":
     dataset_folder = os.path.join(os.getcwd(),"datasets") #Path to dowmload datasets
