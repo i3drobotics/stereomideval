@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="stereo-mideval",
-    version="1.0.1",
+    version="1.0.2",
     author="Ben Knight",
     author_email="bknight@i3drobotics.com",
     description="Evaluation dataset and tools from Middlebury Stereo Evaulation data 2014.",
