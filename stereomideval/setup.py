@@ -1,11 +1,8 @@
-import setuptools
-from setuptools import Command
-
-from os.path import abspath, basename, dirname, join, normpath, relpath
+from os.path import abspath, dirname, join, normpath, relpath
 from shutil import rmtree
 import glob
-
-here = normpath(abspath(dirname(__file__)))
+import setuptools
+from setuptools import Command
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -22,6 +19,10 @@ class CleanCommand(Command):
 
     boolean_options = ['all']
 
+    def __init__(self,dist):
+        self.all = None
+        super().__init__(dist)
+
     def initialize_options(self):
         self.all = None
 
@@ -29,28 +30,28 @@ class CleanCommand(Command):
         pass
 
     def run(self):
-        global here
+        script_path = normpath(abspath(dirname(__file__)))
         for path_spec in self.CLEAN_FILES:
             # Make paths absolute and relative to this path
-            abs_paths = glob.glob(normpath(join(here, path_spec)))
+            abs_paths = glob.glob(normpath(join(script_path, path_spec)))
             for path in [str(p) for p in abs_paths]:
-                if not path.startswith(here):
+                if not path.startswith(script_path):
                     # Die if path in CLEAN_FILES is absolute + outside this directory
-                    raise ValueError("%s is not a path inside %s" % (path, here))
+                    raise ValueError("%s is not a path inside %s" % (path, script_path))
                 print('removing %s' % relpath(path))
                 rmtree(path)
 
 setuptools.setup(
     name="stereo-mideval",
-    version="1.0.3",
+    version="1.0.4",
     author="Ben Knight",
     author_email="bknight@i3drobotics.com",
     description="Evaluation dataset and tools from Middlebury Stereo Evaulation data 2014.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/i3drobotics/StereoMiddleburyEval",
+    url="https://github.com/i3drobotics/stereomideval",
     packages=setuptools.find_packages(),
-    package_dir={'StereoMiddleburyEval':'StereoMiddleburyEval'},
+    package_dir={'stereomideval':'stereomideval'},
     install_requires=[
         'numpy','opencv-python','wget'
     ],
@@ -62,5 +63,5 @@ setuptools.setup(
     python_requires='>=3.5',
     cmdclass={
         'clean': CleanCommand,
-    },
+    }
 )
