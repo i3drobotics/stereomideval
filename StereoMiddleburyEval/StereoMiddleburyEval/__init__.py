@@ -3,6 +3,8 @@ import glob
 import re
 import numpy as np
 import cv2
+import wget
+import sys
 import zipfile
 
 class StereoMiddleburyEval():
@@ -199,6 +201,13 @@ class StereoMiddleburyEval():
         # Get URL on middlebury servers for 2014 dataset for chosen scene
         return "http://vision.middlebury.edu/stereo/data/scenes2014/zip/"+scene_name+"-perfect.zip"
 
+    #create this bar_progress method which is invoked automatically from wget
+    def bar_progress(self,current, total, width=80):
+        progress_message = "Downloading: %d%% [%d / %d] bytes" % (current / total * 100, current, total)
+        # Don't use print() as it will print in new line every time.
+        sys.stdout.write("\r" + progress_message)
+        sys.stdout.flush()
+
     def downloadDataset(self,scene_name,output_folder):
         # Download dataset from middlebury servers
         # Get url from scene name
@@ -212,9 +221,8 @@ class StereoMiddleburyEval():
             # Check zip file doesn't already exist
             if (not os.path.exists(zip_filepath)):
                 print("Downloading from: "+url)
-                print("Middlebury servers can be quite slow so go make a cup of tea.")
                 # download file from middlebury server
-                os.system("curl -o "+zip_filepath+" -L "+url)
+                wget.download(url, zip_filepath, bar=self.bar_progress)
             else:
                 print("Zip file for dataset already exists here, skipping download of file: "+zip_filepath)
             print("Extracting zip...")

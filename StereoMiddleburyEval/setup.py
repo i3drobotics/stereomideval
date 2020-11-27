@@ -15,7 +15,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     package_dir={'StereoMiddleburyEval':'StereoMiddleburyEval'},
     install_requires=[
-        'numpy','opencv-python'
+        'numpy','opencv-python','wget'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

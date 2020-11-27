@@ -1,3 +1,4 @@
 /datasets
 *.vscode
 /SampleScripts/datasets
+/StereoMiddleburyEval/StereoMiddleburyEval/datasets
