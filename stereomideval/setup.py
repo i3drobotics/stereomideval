@@ -46,7 +46,7 @@ class CleanCommand(Command):
 
 setuptools.setup(
     name="stereo-mideval",
-    version="1.0.5",
+    version="1.0.6",
     author="Ben Knight",
     author_email="bknight@i3drobotics.com",
     description="Evaluation dataset and tools from Middlebury Stereo Evaulation data 2014.",

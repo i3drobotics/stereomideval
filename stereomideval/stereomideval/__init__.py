@@ -277,8 +277,7 @@ class Dataset:
         url = base_url+scene_name+"-perfect.zip"
         return url
 
-    
-    def bar_progress(self,current, total):
+    def bar_progress(self,current, total, width=60):
         """Progress bar to display download progress in wget"""
         base_progress_msg = "Downloading: %d%% [%d / %d] bytes"
         progress_message = base_progress_msg % (current / total * 100, current, total)
