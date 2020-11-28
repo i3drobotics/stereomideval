@@ -14,17 +14,17 @@ pip install stereo-mideval
 - Convert disparity image to depth image using calibration file from scene data
 
 ## Examples
-### Download and display scene data
+### Download and display data from all scenes in Middlebury stereo dataset (2014)
 ```python
 import os
 from stereomideval import Dataset
 
 # Path to dowmload datasets
-dataset_folder = os.path.join(os.getcwd(),"datasets") 
+DATASET_FOLDER = os.path.join(os.getcwd(),"datasets")
 
 # Create dataset folder
-if not os.path.exists(dataset_folder):
-    os.makedirs(dataset_folder)
+if not os.path.exists(DATASET_FOLDER):
+    os.makedirs(DATASET_FOLDER)
 
 # Initalise stereomideval Dataset object
 stmid_dataset = Dataset()
@@ -34,10 +34,36 @@ for scenename in stmid_dataset.get_scene_list():
     # Download dataset from middlebury servers
     # will only download it if it hasn't already been downloaded
     print("Downloading data for scene '"+scenename+"'...")
-    stmid_dataset.download_scene_data(scenename,dataset_folder) 
+    stmid_dataset.download_scene_data(scenename,DATASET_FOLDER)
     # Load scene data from downloaded folder
     print("Loading data for scene '"+scenename+"'...")
-    scene_data = stmid_dataset.load_scene_data(scenename,dataset_folder,True)
+    scene_data = stmid_dataset.load_scene_data(scenename,DATASET_FOLDER,True)
+```
+
+### Download and display data from a single scene in Middlebury stereo dataset (2014)
+```python
+import os
+from stereomideval import Dataset
+
+# Path to dowmload datasets
+DATASET_FOLDER = os.path.join(os.getcwd(),"datasets")
+# Scene name (see here for list of scenes: https://vision.middlebury.edu/stereo/data/scenes2014/)
+SCENE_NAME = "Adirondack"
+
+# Create dataset folder
+if not os.path.exists(DATASET_FOLDER):
+    os.makedirs(DATASET_FOLDER)
+
+# Initalise stereomideval Dataset object
+stmid_dataset = Dataset()
+
+# Download dataset from middlebury servers
+# will only download it if it hasn't already been downloaded
+print("Downloading data for scene '"+SCENE_NAME+"'...")
+stmid_dataset.download_scene_data(SCENE_NAME,DATASET_FOLDER)
+# Load scene data from downloaded folder
+print("Loading data for scene '"+SCENE_NAME+"'...")
+stmid_dataset.load_scene_data(SCENE_NAME,DATASET_FOLDER,True,0)
 ```
 
 ## Developement
