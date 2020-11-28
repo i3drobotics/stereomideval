@@ -1,20 +1,20 @@
 # stereo-mideval
-Python package for evaluation dataset and tools from the [Middlebury stereo evaulation 2014](https://vision.middlebury.edu/stereo/data/scenes2014/) dataset.
-This project is in development by [I3DR](https://i3drobotics.com/) for evaluation stereo matching algorithms for use in stereo cameras. However this is project is fully open-source with no limitations to encorage and support others who may need access to this tools. 
+Python package for dataset and evaluation tools from the [Middlebury stereo evaulation 2014](https://vision.middlebury.edu/stereo/data/scenes2014/) dataset.
+This project is in development by [I3DR](https://i3drobotics.com/) for evaluating stereo matching algorithms for use in stereo cameras. However, this project is fully open-source with no limitations to encorage and support others who may need this. 
 
 ## Install
 ```
 pip install stereo-mideval
 ```
 
-# Features
+## Features
 - Download scene data from Middlebury servers
 - Load disparity image and stereo pair from scene data
 - Display normalised colormaped disparity image
 - Convert disparity image to depth image using calibration file from scene data
 
-# Examples
-## Download and display scene data
+## Examples
+### Download and display scene data
 ```python
 import os
 from stereomideval import Dataset

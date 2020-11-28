@@ -5,7 +5,7 @@ import glob
 import setuptools
 from setuptools import Command
 
-with open("README.md", "r") as fh:
+with open("../README.md", "r") as fh:
     long_description = fh.read()
 
 class CleanCommand(Command):
@@ -46,7 +46,7 @@ class CleanCommand(Command):
 
 setuptools.setup(
     name="stereo-mideval",
-    version="1.0.8",
+    version="1.0.10",
     author="Ben Knight",
     author_email="bknight@i3drobotics.com",
     description="Evaluation dataset and tools from Middlebury Stereo Evaulation data 2014.",
