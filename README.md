@@ -12,6 +12,7 @@ pip install stereo-mideval
 - Load disparity image and stereo pair from scene data
 - Display normalised colormaped disparity image
 - Convert disparity image to depth image using calibration file from scene data
+- Evaluation metrics of disparity image compared to ground truth disparity (rmse, mse, bad pixel percentage)
 
 ## Examples
 ### Download and display data from all scenes in Middlebury stereo dataset (2014)
@@ -102,9 +103,6 @@ for scenename in stmid_dataset.get_scene_list():
 ```
 
 ## Developement
-### Upcomming features
-- Evaluation of disparity image compared to ground truth disparity
-- Evaulation of depth image compared to ground truth depth for real-world error metrics
 
 ### Build
 ```
