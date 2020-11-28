@@ -1,5 +1,6 @@
 """This module tests functionality of stereomideval module"""
 import os
+import numpy as np
 from stereomideval import Dataset, Eval
 
 if __name__ == "__main__":
@@ -21,8 +22,12 @@ if __name__ == "__main__":
         stmid_dataset.download_scene_data(scenename,dataset_folder)
         # Load scene data from downloaded folder
         print("Loading data for scene '"+scenename+"'...")
-        scene_data = stmid_dataset.load_scene_data(scenename,dataset_folder,True)
-        disp_image = scene_data.disp_image
-        # Demonstate evaluation by comparing the ground truth to itself
-        mse = stmid_eval.mse(disp_image,disp_image)
-        print(mse)
+        scene_data = stmid_dataset.load_scene_data(scenename,dataset_folder,True,1)
+        gt_disp_image = scene_data.disp_image
+        # Demonstate evaluation by comparing the ground truth to itelf with a bit of noise
+        noise = np.random.normal(0, 1.5, gt_disp_image.shape)
+        test_disp_image = gt_disp_image + noise
+        rmse = stmid_eval.rmse(gt_disp_image,test_disp_image)
+        bad_pix_error = stmid_eval.bad_pix_error(gt_disp_image,test_disp_image)
+        print("RMSE: {:.2f}".format(rmse))
+        print("Bad pixel 2.0: {:.2f}%".format(bad_pix_error))

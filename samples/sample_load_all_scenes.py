@@ -1,4 +1,8 @@
-"""This module shows example functionality of stereomideval module"""
+"""
+Sample: Load all scenes
+
+This module demonstrates loading data from all scenes using the stereomideval module.
+"""
 import os
 from stereomideval import Dataset
 

@@ -12,6 +12,7 @@ import sys
 import numpy as np
 import cv2
 import wget
+import math
 
 # List of available scenes in the Middlebury stereo dataset (2014)
 STEREO_MIDDLEBURY_SCENES = [
@@ -86,26 +87,80 @@ class Eval:
     def __init__(self):
         pass
 
-    def mse(self, test_data, ground_truth):
+    def diff(self, ground_truth, test_data):
+        """
+        Difference between ground truth and test data
+
+        Parameters:
+            ground_truth (numpy): 2D ground truth image to use for comparision
+            test_data (numpy): 2D test image to compare against ground truth
+        Returns:
+            diff (numpy): test data subtracted from ground truth
+        """
+        # Replace nan and inf values with zero
+        test_data_no_nan = np.nan_to_num(test_data, nan=0.0,posinf=0.0,neginf=0.0)
+        ground_truth_no_nan = np.nan_to_num(ground_truth, nan=0.0,posinf=0.0,neginf=0.0)
+        # Subtract test data from ground truth to find difference
+        diff = np.subtract(test_data_no_nan,ground_truth_no_nan)
+        return diff
+
+    def bad_pix_error(self,ground_truth,test_data,threshold=2.0):
+        """
+        Bad pixel error
+
+        Calcuate percentage of bad pixels between test data and ground truth
+        A bad pixel is defined as a disparity with an error larger than the threshold
+
+        Parameters:
+            ground_truth (numpy): 2D ground truth image to use for comparision
+            test_data (numpy): 2D test image to compare against ground truth
+            threshold (float): Threshold below which to classify a bad pixel
+
+        Returns:
+            perc_bad (float): Bad pixel percentage error in test data.
+        """
+        diff = self.diff(ground_truth,test_data)
+        abs_diff = np.abs(diff)
+        bad_count = (~(abs_diff < threshold)).sum()
+        total_size = ground_truth.shape[0] * ground_truth.shape[1]
+        perc_bad = (bad_count/total_size)*100
+        return perc_bad
+
+    def rmse(self, ground_truth, test_data):
+        """
+        Root mean squared error
+
+        Calculate root mean squared error between test data and ground truth
+
+        Parameters:
+            ground_truth (numpy): 2D ground truth image to use for comparision
+            test_data (numpy): 2D test image to compare against ground truth
+
+        Returns:
+            err (float): Root mean squared error of two images,
+                the lower the error, the more "similar" the two images
+        """
+        rmse = math.sqrt(self.mse(ground_truth,test_data))
+        return rmse
+
+    def mse(self, ground_truth, test_data):
         """
         Mean squared error
 
-        The 'Mean Squared Error' between the two images is the
-        sum of the squared difference between the two images;
-        NOTE: the two images must have the same dimension
+        Calculate the mean squared error between test data and ground truth
 
         Parameters:
-            test_data (numpy): 2D test image to compare against
-                ground truth
-            ground_truth (numpy): Ground truth to use for comparision
+            ground_truth (numpy): 2D ground truth image to use for comparision
+            test_data (numpy): 2D test image to compare against ground truth
 
         Returns:
             err (float): Mean squared error of two images,
                 the lower the error, the more "similar" the two images
         """
-        err = np.sum((test_data.astype("float") - ground_truth.astype("float")) ** 2)
-        err /= float(test_data.shape[0] * test_data.shape[1])
-
+        # Calculate difference between ground truth and test data (gt-td)
+        diff = self.diff(ground_truth,test_data)
+        # Calculate MSE
+        err = np.square(diff).mean()
         return err
 
 class SceneData:
