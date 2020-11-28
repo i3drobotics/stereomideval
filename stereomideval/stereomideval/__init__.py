@@ -49,38 +49,83 @@ class InvalidSceneName(Exception):
 class MalformedPFM(Exception):
     """Malformed PFM file exception"""
     def __init__(self, message="Malformed PFM file"):
+        """
+        Exception handelling for malformed PFM file
+        Parameters:
+            message (string): Message to display in exception,
+                will use default message if no message is provided
+        """
         self.message = message
         super().__init__(self.message)
 
     def __str__(self):
+        """Overload of exception message"""
         return self.message
 
 class PathNotFound(Exception):
     """Path not found exception"""
     def __init__(self, filename, message="Path does not exist: "):
+        """
+        Exception handelling for path not found
+        Parameters:
+            filename (string): Filepath that was not found.
+                Will be displayed in exception message
+            message (string): Message to display in exception,
+                will use default message if no message is provided
+        """
         self.filename = filename
         self.message = message
         super().__init__(self.message)
 
     def __str__(self):
+        """Overload of exception message"""
         return self.message+self.filename
 
 class Eval:
     """Evaluate disparity image against ground truth"""
-    def __init__(self,ground_truth,test_data):
-        self.ground_truth = ground_truth
-        self.test_data = test_data
+    def __init__(self):
+        pass
 
-    def evaluate(self):
-        """ Run evaluation """
+    def mse(self, test_data, ground_truth):
+        """
+        Mean squared error
+
+        The 'Mean Squared Error' between the two images is the
+        sum of the squared difference between the two images;
+        NOTE: the two images must have the same dimension
+
+        Parameters:
+            test_data (numpy): 2D test image to compare against
+                ground truth
+            ground_truth (numpy): Ground truth to use for comparision
+
+        Returns:
+            err (float): Mean squared error of two images,
+                the lower the error, the more "similar" the two images
+        """
+        err = np.sum((test_data.astype("float") - ground_truth.astype("float")) ** 2)
+        err /= float(test_data.shape[0] * test_data.shape[1])
+
+        return err
 
 class SceneData:
     """
     Scene data
 
-    Data returned by scene loading. Used in Dataset:load_scene_data() 
+    Used to make returning and accessing scene data simple.
     """
     def __init__(self,left_image,right_image,disp_image,depth_image):
+        """
+        Initalisaiton of SceneData structure
+
+        Parameters:
+            left_image (numpy): 2D image from left camera in
+                stereo pair
+            right_image (numpy): 2D image from right camera in
+                stereo pair
+            disp_image (numpy): 2D disparity image (result of stereo matching)
+            depth_image (numpy): 2D depth image (units: meters)
+        """
         self.left_image = left_image
         self.right_image = right_image
         self.disp_image = disp_image
@@ -92,7 +137,16 @@ class Dataset:
         pass
 
     def normalise_pfm_data(self,data,max_val_pct=0.1):
-        """Normalise disparity pfm image"""
+        """
+        Normalise disparity pfm image
+
+        Parameters:
+            data (numpy): 2D pfm image data to normalise
+            max_val_pct (float): TODO what is this?
+
+        Returns:
+            norm_pfm_data (numpy): 2D normalised pfm image data
+        """
         norm_pfm_data = np.where(data == np.inf, -1, data)
         max_val = np.max(norm_pfm_data)
         max_val += max_val * max_val_pct
@@ -103,20 +157,29 @@ class Dataset:
         return norm_pfm_data
 
     def disp_to_depth(self,disp,cal_filepath):
-        """Convert from disparity to depth using calibration file"""
-        # Sample calib.txt file for one of the full-size training image pairs:
-        # cam0=[3997.684 0 1176.728; 0 3997.684 1011.728; 0 0 1]
-        # cam1=[3997.684 0 1307.839; 0 3997.684 1011.728; 0 0 1]
-        # doffs=131.111
-        # baseline=193.001
-        # width=2964
-        # height=1988
-        # ndisp=280
-        # isint=0
-        # vmin=31
-        # vmax=257
-        # dyavg=0.918
-        # dymax=1.516
+        """
+        Convert from disparity to depth using calibration file
+
+        Parameters:
+            disp (numpy): 2D disparity image (result of stereo matching)
+            cal_filepath (string): filepath to calibration file (usually calib.txt)
+                Expected format:
+                    cam0=[3997.684 0 1176.728; 0 3997.684 1011.728; 0 0 1]
+                    cam1=[3997.684 0 1307.839; 0 3997.684 1011.728; 0 0 1]
+                    doffs=131.111
+                    baseline=193.001
+                    width=2964
+                    height=1988
+                    ndisp=280
+                    isint=0
+                    vmin=31
+                    vmax=257
+                    dyavg=0.918
+                    dymax=1.516
+
+        Returns:
+            depth (numpy): 2D depth image (units meters)
+        """
 
         # Check calibration file exists
         if not os.path.exists(cal_filepath):
@@ -139,22 +202,31 @@ class Dataset:
         # Read all numbers from cam0 line using regex
         nums = re.findall("\\d+\\.\\d+", cam0_line)
         # Get camera parmeters from file data
-        f = float(nums[0])
-        #cx = float(nums[1])
-        #cy = float(nums[3])
+        cam0_f = float(nums[0])
+        #cam0_cx = float(nums[1])
+        #cam0_cy = float(nums[3])
 
         # Get doffs and baseline from file data
         doffs = float(re.findall("\\d+\\.\\d+", doffs_line)[0])
         baseline = float(re.findall("\\d+\\.\\d+", baseline_line)[0])
 
         # Calculate depth from disparitiy
-        Z = baseline * f / (disp + doffs)
+        # Z = baseline * f / (disp + doeff)
+        z_mm = baseline * cam0_f / (disp + doffs)
         # Z is in mm, convert to meters
-        depth = Z / 1000
+        depth = z_mm / 1000
         return depth
 
     def load_pfm(self,filepath):
-        """Load pfm data from file"""
+        """
+        Load pfm data from file
+
+        Parameters:
+            filepath (string): filepath to pfm image (e.g. image.pfm)
+
+        Returns:
+            pfm_data (numpy): 2D image filled with data from pfm file
+        """
         # Check file exists
         if not os.path.exists(filepath):
             raise PathNotFound(filepath,"Pfm file does not exist")
@@ -201,7 +273,21 @@ class Dataset:
         return data, scale
 
     def load_scene_disparity(self,scene_name,dataset_folder,display_images=False,display_time=500):
-        """Load disparity image from scene folder"""
+        """
+        Load disparity image from scene folder
+
+        Parameters:
+            scene_name (string): Scene name to load data (use 'get_scene_list()'
+                to see possible scenes) Must have already been downloaded to the
+                dataset foldering using 'download_scene_data()'
+            dataset_folder (string): Path to folder where dataset has been downloaded
+            display_image (bool): Optional. Should the scene data be displayed when it is loaded.
+            display_time (int): Optional. Length of time to display each image once loaded.
+
+        Returns:
+            disp_image (numpy): 2D disparity image
+                loaded from scene data (result of stereo matching)
+        """
         # Get name of disparity image (pfm) in folder
         disp_filename = os.path.join(dataset_folder,scene_name,"disp0.pfm")
         # Check disparity file exists
@@ -221,7 +307,21 @@ class Dataset:
 
     def load_scene_stereo_pair(self,
             scene_name,dataset_folder,display_images=False,display_time=500):
-        """Load stereo pair images from scene folder"""
+        """
+        Load stereo pair images from scene folder
+
+        Parameters:
+            scene_name (string): Scene name to load data (use 'get_scene_list()'
+                to see possible scenes) Must have already been downloaded to the
+                dataset foldering using 'download_scene_data()'
+            dataset_folder (string): Path to folder where dataset has been downloaded
+            display_image (bool): Optional. Should the scene data be displayed when it is loaded.
+            display_time (int): Optional. Length of time to display each image once loaded.
+
+        Returns:
+            left_image (numpy): 2D image from left camera, loaded from scene data
+            right_image (numpy): 2D image from right camera, loaded from scene data
+        """
         # Define left and right image files in scene folder
         left_image_filename = os.path.join(dataset_folder,scene_name,"im0.png")
         right_image_filename = os.path.join(dataset_folder,scene_name,"im1.png")
@@ -247,7 +347,20 @@ class Dataset:
         return left_image, right_image
 
     def load_scene_data(self,scene_name,dataset_folder,display_images=False,display_time=500):
-        """Load scene data from scene folder"""
+        """Load scene data from scene folder
+
+        Parameters:
+            scene_name (string): Scene name to load data (use 'get_scene_list()'
+                to see possible scenes) Must have already been downloaded to the
+                dataset foldering using 'download_scene_data()'
+            dataset_folder (string): Path to folder where dataset has been downloaded
+            display_image (bool): Optional. Should the scene data be displayed when it is loaded.
+            display_time (int): Optional. Length of time to display each image once loaded.
+
+        Returns:
+            scene_data (SceneData): Data loaded from scene folder
+                (see SceneData for details on this structure)
+        """
         if self.check_valid_scene_name(scene_name):
             # Load disparity image from scene folder
             disp_image = self.load_scene_disparity(
@@ -270,15 +383,30 @@ class Dataset:
         return STEREO_MIDDLEBURY_SCENES
 
     def get_url_from_scene(self,scene_name):
-        """Get URL on middlebury servers for 2014 dataset for chosen scene"""
+        """
+        Get URL on middlebury servers for 2014 dataset for chosen scene
+
+        Parameters:
+            scene_name (string): Scene name to get url of
+
+        Returns:
+            url (string): Url for chosen scene name in middlebury stereo dataset (2014)
+        """
         if not self.check_valid_scene_name(scene_name):
             raise InvalidSceneName()
         base_url = "http://vision.middlebury.edu/stereo/data/scenes2014/zip/"
         url = base_url+scene_name+"-perfect.zip"
         return url
 
-    def bar_progress(self,current, total, width=60):
-        """Progress bar to display download progress in wget"""
+    def bar_progress(self, current, total, *_):
+        """
+        Progress bar to display download progress in wget
+
+        Parameters:
+            current (int): current byte count
+            total (int): total number of bytes
+            *_: required by wget but is ignored in this function
+        """
         base_progress_msg = "Downloading: %d%% [%d / %d] bytes"
         progress_message = base_progress_msg % (current / total * 100, current, total)
         # Don't use print() as it will print in new line every time.
@@ -286,11 +414,25 @@ class Dataset:
         sys.stdout.flush()
 
     def check_valid_scene_name(self,scene_name):
-        """Check scene name is avaiable for download"""
+        """
+        Check scene name is avaiable for download
+
+        Parameters:
+            scene_name (string): scene name to check validity
+
+        Returns:
+            valid (bool): returns existence of scene name in avaiable scene list
+        """
         return scene_name in self.get_scene_list()
 
     def download_scene_data(self,scene_name,output_folder):
-        """Download scene data"""
+        """
+        Download scene data
+
+        Parameters:
+            scene_name (string): Scene to download from Middlesbury stereo dataset (2014)
+            output_folder (string): Path to download scene data
+        """
         if self.check_valid_scene_name(scene_name):
             # Check output folder exists
             if os.path.exists(output_folder):
