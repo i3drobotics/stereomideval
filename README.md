@@ -101,22 +101,3 @@ for scene_name in stmid_dataset.get_scene_list():
     print("RMSE: {:.2f}".format(rmse))
     print("Bad pixel 2.0: {:.2f}%".format(bad_pix_error))
 ```
-
-## Developement
-
-### Build
-```
-python -m pip install --user --upgrade twine wheel && python setup.py clean --all && python setup.py sdist bdist_wheel
-```
-
-### Upload to Test Pip
-Test pip package is maintained by user: [i3DR](https://pypi.org/user/i3DR/)
-```
-python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
-```
-
-### Upload to Pip
-Pip package is maintained by user: [i3DR](https://pypi.org/user/i3DR/)
-```
-python -m twine upload dist/*
-```
