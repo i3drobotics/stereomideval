@@ -1,4 +1,4 @@
-"""This module tests functionality of stereomideval module"""
+"""This module is used for manually testing functionality while developing stereomideval module"""
 import os
 import numpy as np
 from stereomideval import Dataset, Eval

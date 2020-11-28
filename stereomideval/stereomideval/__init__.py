@@ -42,6 +42,11 @@ STEREO_MIDDLEBURY_SCENES = [
 ]
 
 # Exceptions
+class ImageSizeNotEqual(Exception):
+    """Image size not equal exception"""
+    def __str__(self):
+        return "Image sizes must be equal"
+
 class InvalidSceneName(Exception):
     """Invalid scene exception"""
     def __str__(self):
@@ -97,6 +102,9 @@ class Eval:
         Returns:
             diff (numpy): test data subtracted from ground truth
         """
+        # Check images are the same size
+        if test_data.shape != ground_truth.shape:
+            raise ImageSizeNotEqual()
         # Replace nan and inf values with zero
         test_data_no_nan = np.nan_to_num(test_data, nan=0.0,posinf=0.0,neginf=0.0)
         ground_truth_no_nan = np.nan_to_num(ground_truth, nan=0.0,posinf=0.0,neginf=0.0)
@@ -119,9 +127,15 @@ class Eval:
         Returns:
             perc_bad (float): Bad pixel percentage error in test data.
         """
+        if test_data.shape != ground_truth.shape:
+            raise ImageSizeNotEqual()
+        # Calculate pixel difference between ground truth and test data
         diff = self.diff(ground_truth,test_data)
+        # Get the absolute difference (positive only)
         abs_diff = np.abs(diff)
+        # Count number of 'bad' pixels
         bad_count = (~(abs_diff < threshold)).sum()
+        # Convert number of 'bad' pixels to percentage
         total_size = ground_truth.shape[0] * ground_truth.shape[1]
         perc_bad = (bad_count/total_size)*100
         return perc_bad
@@ -140,6 +154,8 @@ class Eval:
             err (float): Root mean squared error of two images,
                 the lower the error, the more "similar" the two images
         """
+        if test_data.shape != ground_truth.shape:
+            raise ImageSizeNotEqual()
         rmse = math.sqrt(self.mse(ground_truth,test_data))
         return rmse
 
@@ -157,6 +173,8 @@ class Eval:
             err (float): Mean squared error of two images,
                 the lower the error, the more "similar" the two images
         """
+        if test_data.shape != ground_truth.shape:
+            raise ImageSizeNotEqual()
         # Calculate difference between ground truth and test data (gt-td)
         diff = self.diff(ground_truth,test_data)
         # Calculate MSE

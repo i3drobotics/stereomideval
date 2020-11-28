@@ -1,0 +1,5 @@
+pytest
+validators
+wget
+opencv-python
+numpy==1.19.3

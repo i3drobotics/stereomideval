@@ -31,14 +31,14 @@ if not os.path.exists(DATASET_FOLDER):
 stmid_dataset = Dataset()
 
 # Get list of scene in dataset (2014) and iterate through them
-for scenename in stmid_dataset.get_scene_list():
+for scene_name in stmid_dataset.get_scene_list():
     # Download dataset from middlebury servers
     # will only download it if it hasn't already been downloaded
-    print("Downloading data for scene '"+scenename+"'...")
-    stmid_dataset.download_scene_data(scenename,DATASET_FOLDER)
+    print("Downloading data for scene '"+scene_name+"'...")
+    stmid_dataset.download_scene_data(scene_name,DATASET_FOLDER)
     # Load scene data from downloaded folder
-    print("Loading data for scene '"+scenename+"'...")
-    scene_data = stmid_dataset.load_scene_data(scenename,DATASET_FOLDER,True)
+    print("Loading data for scene '"+scene_name+"'...")
+    scene_data = stmid_dataset.load_scene_data(scene_name,DATASET_FOLDER,True)
 ```
 
 ### Download and display data from a single scene in Middlebury stereo dataset (2014)
@@ -84,14 +84,14 @@ stmid_dataset = Dataset()
 stmid_eval = Eval()
 
 # Get list of scenes in Milddlebury's stereo dataset (2014) and iterate through them
-for scenename in stmid_dataset.get_scene_list():
+for scene_name in stmid_dataset.get_scene_list():
     # Download dataset from middlebury servers
     # will only download it if it hasn't already been downloaded
-    print("Downloading data for scene '"+scenename+"'...")
-    stmid_dataset.download_scene_data(scenename,dataset_folder)
+    print("Downloading data for scene '"+scene_name+"'...")
+    stmid_dataset.download_scene_data(scene_name,dataset_folder)
     # Load scene data from downloaded folder
-    print("Loading data for scene '"+scenename+"'...")
-    scene_data = stmid_dataset.load_scene_data(scenename,dataset_folder,True,1)
+    print("Loading data for scene '"+scene_name+"'...")
+    scene_data = stmid_dataset.load_scene_data(scene_name,dataset_folder,True,1)
     gt_disp_image = scene_data.disp_image
     # Demonstate evaluation by comparing the ground truth to itelf with a bit of noise
     noise = np.random.normal(0, 1.5, gt_disp_image.shape)
