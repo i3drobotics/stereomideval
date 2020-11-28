@@ -8,10 +8,10 @@ pip install stereo-mideval
 ```
 
 # Features
-- [ ] Download scene data from Middlebury servers
-- [ ] Load disparity image and stereo pair from scene data
-- [ ] Display normalised colormaped disparity image
-- [ ] Convert disparity image to depth image using calibration file from scene data
+- Download scene data from Middlebury servers
+- Load disparity image and stereo pair from scene data
+- Display normalised colormaped disparity image
+- Convert disparity image to depth image using calibration file from scene data
 
 # Examples
 ## Download and display scene data
@@ -42,8 +42,8 @@ for scenename in stmid_dataset.get_scene_list():
 
 ## Developement
 ### Upcomming features
-- [ ] Evaluation of disparity image compared to ground truth disparity
-- [ ] Evaulation of depth image compared to ground truth depth for real-world error metrics
+- Evaluation of disparity image compared to ground truth disparity
+- Evaulation of depth image compared to ground truth depth for real-world error metrics
 
 ### Build
 ```
