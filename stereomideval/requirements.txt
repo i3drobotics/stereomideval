@@ -2,4 +2,5 @@ pytest
 validators
 wget
 opencv-python
-numpy==1.19.3
+numpy; python_version == '3.5'
+numpy==1.19.3; python_version > '3.5'
