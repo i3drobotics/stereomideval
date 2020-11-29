@@ -2,6 +2,13 @@
 Python package for dataset and evaluation tools from the [Middlebury stereo evaulation 2014](https://vision.middlebury.edu/stereo/data/scenes2014/) dataset.
 This project is in development by [I3DR](https://i3drobotics.com/) for evaluating stereo matching algorithms for use in stereo cameras. However, this project is fully open-source with no limitations to encorage and support others who may need this. 
 
+## Compatibility
+Compatible with python 3.5, 3.6, 3.7, 3.8 on Windows x64
+Tested on Windows using Git Actions.
+
+[![Actions Status](https://github.com/i3drobotics/stereomideval/workflows/Test%20Python%20package/badge.svg)](https://github.com/i3drobotics/stereomideval/actions)  
+[![Actions Status](https://github.com/i3drobotics/stereomideval/workflows/Upload%20Python%20Package/badge.svg)](https://github.com/i3drobotics/stereomideval/actions)
+
 ## Install
 ```
 pip install stereo-mideval
