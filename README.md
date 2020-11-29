@@ -6,8 +6,8 @@ This project is in development by [I3DR](https://i3drobotics.com/) for evaluatin
 Compatible with python 3.5, 3.6, 3.7, 3.8 on Windows x64
 Tested on Windows using Git Actions.
 
-[![Actions Status](https://github.com/i3drobotics/stereomideval/workflows/Test%20Python%20package/badge.svg)](https://github.com/i3drobotics/stereomideval/actions)  
-[![Actions Status](https://github.com/i3drobotics/stereomideval/workflows/Upload%20Python%20Package/badge.svg)](https://github.com/i3drobotics/stereomideval/actions)
+[![Actions Status](https://github.com/i3drobotics/stereomideval/workflows/Test%20Python%20package/badge.svg?event=push)](https://github.com/i3drobotics/stereomideval/actions)  
+[![Actions Status](https://github.com/i3drobotics/stereomideval/workflows/Upload%20Python%20Package/badge.svg?event=push)](https://github.com/i3drobotics/stereomideval/actions)
 
 ## Install
 ```
