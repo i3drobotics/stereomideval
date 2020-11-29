@@ -56,7 +56,8 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     package_dir={'stereomideval':'stereomideval'},
     install_requires=[
-        'numpy','opencv-python','wget'
+        'numpy; python_version == "3.5"','numpy==1.19.3; python_version > "3.5"',
+        'opencv-python','wget'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
