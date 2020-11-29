@@ -8,6 +8,9 @@ from setuptools import Command
 with open("../README.md", "r") as fh:
     long_description = fh.read()
 
+with open("../version.txt", "r") as fh:
+    version = fh.read()
+
 class CleanCommand(Command):
     """Custom clean command to tidy up the project root."""
     CLEAN_FILES = './build ./dist ./*.pyc ./*.tgz ./*.egg-info ./__pycache__'.split(' ')
@@ -46,7 +49,7 @@ class CleanCommand(Command):
 
 setuptools.setup(
     name="stereo-mideval",
-    version="1.0.13",
+    version=version,
     author="Ben Knight",
     author_email="bknight@i3drobotics.com",
     description="Evaluation dataset and tools from Middlebury Stereo Evaulation data 2014.",
