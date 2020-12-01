@@ -4,7 +4,7 @@ Sample: Load one scene
 This module demonstrates loading data from one scene using the stereomideval module.
 """
 import os
-from stereomideval import Dataset
+from stereomideval.dataset import Dataset
 
 # Path to dowmload datasets
 DATASET_FOLDER = os.path.join(os.getcwd(),"datasets")

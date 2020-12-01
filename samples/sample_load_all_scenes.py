@@ -4,11 +4,7 @@ Sample: Load all scenes
 This module demonstrates loading data from all scenes using the stereomideval module.
 """
 import os
-import numpy as np
-import cv2
-from stereomideval.structures import MatchData
 from stereomideval.dataset import Dataset
-from stereomideval.eval import Eval, Timer
 
 DATASET_FOLDER = os.path.join(os.getcwd(),"datasets") #Path to download datasets
 DISPLAY_IMAGES = False
