@@ -197,6 +197,23 @@ class Metrics:
 
 class Eval:
     """Evaluate disparity image against ground truth"""
+    @staticmethod
+    def normalise_disp(disp_image):
+        # remove negative disparities
+        disp_image[disp_image<0]=0.0
+        # Replace nan and inf values with zero
+        disp_image = np.nan_to_num(disp_image, nan=0.0,posinf=0.0,neginf=0.0)
+        # normalise image
+        disp_image = cv2.normalize(disp_image, None, 0, 255, cv2.NORM_MINMAX)
+        # convert to uint8
+        disp_image = disp_image.astype(np.uint8)
+        return disp_image
+
+    @staticmethod
+    def colormap_disp(disp_image):
+        disp_image = Eval.normalise_disp(disp_image)
+        disp_image = cv2.applyColorMap(disp_image, cv2.COLORMAP_JET)
+        return disp_image
 
     @staticmethod
     def display_results(left_image,gt_disp,test_disp,eval_results=None,

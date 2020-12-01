@@ -538,8 +538,8 @@ class Dataset:
                 if not os.path.exists(scene_output_folder):
                     # Create scene folder
                     os.makedirs(scene_output_folder)
-                    img0_filepath = os.path.join(scene_output_folder,"img0.png")
-                    img1_filepath = os.path.join(scene_output_folder,"img1L.png")
+                    img0_filepath = os.path.join(scene_output_folder,"im0.png")
+                    img1_filepath = os.path.join(scene_output_folder,"im1L.png")
                     disp_filepath = os.path.join(scene_output_folder,"disp0.png")
                     #TODO find cal data
                     filepaths = [img0_filepath,img1_filepath,disp_filepath]
