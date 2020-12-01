@@ -23,5 +23,5 @@ def test_catch_invalid_scene_name():
     with pytest.raises(InvalidSceneName):
         InvalidSceneName.validate_scene_list(scene_name,Dataset.get_scene_list())
     with pytest.raises(InvalidSceneName):
-        InvalidSceneName.validate_scene_dict_list(scene_name,Dataset.get_training_scene_list())
+        InvalidSceneName.validate_scene_info_list(scene_name,Dataset.get_training_scene_list())
     

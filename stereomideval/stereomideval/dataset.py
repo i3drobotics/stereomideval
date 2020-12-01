@@ -7,7 +7,7 @@ import glob
 import numpy as np
 import cv2
 import wget
-from stereomideval.structures import DatasetType, CalibrationData, SceneData
+from stereomideval.structures import DatasetType, CalibrationData, TestData, SceneInfo
 from stereomideval.exceptions import PathNotFound, MalformedPFM, InvalidSceneName
 
 class Dataset:
@@ -67,21 +67,21 @@ class Dataset:
         STEREO_MIDDLEBURY_SCENES_2005 + STEREO_MIDDLEBURY_SCENES_2014
 
     STEREO_MIDDLEBURY_TRAINING_SCENES = [
-        {'name':Adirondack,'dataset_type':DatasetType.I,'weight':8},
-        {'name':Art,'dataset_type':DatasetType.L,'weight':8},
-        {'name':Jadeplant,'dataset_type':DatasetType.I,'weight':8},
-        {'name':Motorcycle,'dataset_type':DatasetType.I,'weight':8},
-        {'name':Motorcycle,'dataset_type':DatasetType.E,'weight':8},
-        {'name':Piano,'dataset_type':DatasetType.I,'weight':8},
-        {'name':Piano,'dataset_type':DatasetType.L,'weight':4},
-        {'name':Pipes,'dataset_type':DatasetType.I,'weight':8},
-        {'name':Playroom,'dataset_type':DatasetType.I,'weight':4},
-        {'name':Playtable,'dataset_type':DatasetType.I,'weight':8},
-        {'name':Playtable,'dataset_type':DatasetType.P,'weight':8},
-        {'name':Recycle,'dataset_type':DatasetType.I,'weight':8},
-        {'name':Shelves,'dataset_type':DatasetType.I,'weight':4},
-        {'name':Teddy,'dataset_type':DatasetType.I,'weight':8},
-        {'name':Vintage,'dataset_type':DatasetType.I,'weight':4},
+        SceneInfo(Adirondack,DatasetType.I,1.0),
+        SceneInfo(Art,DatasetType.L,1.0),
+        SceneInfo(Jadeplant,DatasetType.I,1.0),
+        SceneInfo(Motorcycle,DatasetType.I,1.0),
+        SceneInfo(Motorcycle,DatasetType.E,1.0),
+        SceneInfo(Piano,DatasetType.I,1.0),
+        SceneInfo(Piano,DatasetType.L,0.5),
+        SceneInfo(Pipes,DatasetType.I,1.0),
+        SceneInfo(Playroom,DatasetType.I,0.5),
+        SceneInfo(Playtable,DatasetType.I,0.5),
+        SceneInfo(Playtable,DatasetType.P,1.0),
+        SceneInfo(Recycle,DatasetType.I,1.0),
+        SceneInfo(Shelves,DatasetType.I,0.5),
+        SceneInfo(Teddy,DatasetType.I,1.0),
+        SceneInfo(Vintage,DatasetType.I,0.5),
     ]
 
     #TODO: add 2014 test scenes (not in organised single zips like test data so requires more work)
@@ -149,6 +149,12 @@ class Dataset:
         doffs_line = file.readline().decode('utf-8').rstrip()
         # Read third line (expected format: "baseline=193.001")
         baseline_line = file.readline().decode('utf-8').rstrip()
+        # Read 4th line (expected format: "width=2964")
+        width_line = file.readline().decode('utf-8').rstrip()
+        # Read 5th line (expected format: "height=19881")
+        height_line = file.readline().decode('utf-8').rstrip()
+        # Read 6th line (expected format: "ndisp=280")
+        ndisp_line = file.readline().decode('utf-8').rstrip()
 
         # Read all numbers from cam0 line using regex
         nums = re.findall("\\d+\\.\\d+", cam0_line)
@@ -159,9 +165,12 @@ class Dataset:
 
         # Get doffs and baseline from file data
         doffs = float(re.findall("\\d+\\.\\d+", doffs_line)[0])
-        baseline = float(re.findall("\\d+\\.\\d+", baseline_line)[0])
+        baseline = float(re.findall("\\d", baseline_line)[0])
+        width = float(re.findall("\\d", width_line)[0])
+        height = float(re.findall("\\d", height_line)[0])
+        ndisp = float(re.findall("\\d", ndisp_line)[0])
 
-        return CalibrationData(cam0_cx,cam0_cy,cam0_f,doffs,baseline)
+        return CalibrationData(width,height,cam0_cx,cam0_cy,cam0_f,doffs,baseline,ndisp)
 
     @staticmethod
     def disp_to_depth(disp,focal_length,doffs,baseline):
@@ -366,8 +375,8 @@ class Dataset:
             display_time (int): Optional. Length of time to display each image once loaded.
 
         Returns:
-            scene_data (SceneData): Data loaded from scene folder
-                (see SceneData for details on this structure)
+            scene_data (TestData): Data loaded from scene folder
+                (see TestData for details on this structure)
         """
         InvalidSceneName.validate_scene_list(scene_name,Dataset.get_scene_list())
         # Load stereo pair images from scene folder
@@ -387,13 +396,18 @@ class Dataset:
             cal_file = os.path.join(dataset_folder,scene_name+perfect_suffix,"calib.txt")
             # Get calibration data from calibration file
             cal_data = Dataset.load_cal(cal_file)
+            ndisp = cal_data.ndisp
             # Calculate depth image from disparity using calibration file
             depth_image = Dataset.disp_to_depth(disp_image,
                 cal_data.focal_length,cal_data.doffs,cal_data.baseline)
         else:
             depth_image = None
+            #TODO replace this with list of files that don't have cal data on website
+            # however all images in training dataset without calibration files have a
+            # ndisp = 256
+            ndisp = 256
 
-        return SceneData(left_image,right_image,disp_image,depth_image)
+        return TestData(left_image,right_image,disp_image,depth_image,ndisp)
 
     @staticmethod
     def get_scene_list():

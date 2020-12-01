@@ -108,3 +108,7 @@ for scene_name in stmid_dataset.get_scene_list():
     print("RMSE: {:.2f}".format(rmse))
     print("Bad pixel 2.0: {:.2f}%".format(bad_pix_error))
 ```
+
+## Development
+### Upcomming features
+ - Offline ranking by caching webpage table data

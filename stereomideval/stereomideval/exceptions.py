@@ -1,6 +1,5 @@
 """Exceptions"""
 import os
-from stereomideval import in_dictlist
 
 class ImageSizeNotEqual(Exception):
     """Image size not equal exception"""
@@ -48,18 +47,20 @@ class InvalidSceneName(Exception):
             raise InvalidSceneName(scene_name)
 
     @staticmethod
-    def validate_scene_dict_list(scene_name,scene_dict_list):
+    def validate_scene_info_list(scene_name,scene_info_list):
         """
         Validate standard exception condition.
         Raises exception if validation fails.
 
         Parameters:
             scene_name (string): scene name to test
-            scene_dict_list (list(dict('name','dataset_type'))):
-                list of scene names to compare against
+            scene_info_list (list(SceneInfo)):
+                list of scene info to compare against
         """
-        if not in_dictlist('name',scene_name,scene_dict_list):
-            raise InvalidSceneName(scene_name)
+        for scene_info in scene_info_list:
+            if scene_name == scene_info.scene_name:
+                return
+        raise InvalidSceneName(scene_name)
 
 class MalformedPFM(Exception):
     """Malformed PFM file exception"""
