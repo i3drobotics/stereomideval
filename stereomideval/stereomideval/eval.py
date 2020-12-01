@@ -77,7 +77,7 @@ class WebscrapeMiddlebury:
         """
         Get list of metrics values from Middlebury website
 
-        Currently assumes using training dense set with nonocc mask
+        Currently assumes using training set with 'all' mask
 
         Parameters:
             metric (Eval.Metric): metric list to get values for
@@ -91,7 +91,7 @@ class WebscrapeMiddlebury:
         if not dense:
             dense_or_sparse = "sparse"
         # Get url for table on Middlebury website
-        url = WebscrapeMiddlebury.get_table_url("training",dense_or_sparse,metric,"nonocc",False)
+        url = WebscrapeMiddlebury.get_table_url("training",dense_or_sparse,metric,"all",False)
         # disable warnings to avoid message:
         # 'InsecureRequestWarning: Unverified HTTPS request
         # is being made to host 'vision.middlebury.edu'.
