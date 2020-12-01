@@ -1,7 +1,8 @@
 """This module tests Eval functionality in stereomideval module"""
 import pytest
 import numpy as np
-from stereomideval import Eval, ImageSizeNotEqual
+from stereomideval.eval import Eval
+from stereomideval.exceptions import ImageSizeNotEqual
 
 def test_init_eval():
     """Test initalising Eval class"""
