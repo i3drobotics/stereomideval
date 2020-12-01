@@ -165,10 +165,10 @@ class Dataset:
 
         # Get doffs and baseline from file data
         doffs = float(re.findall("\\d+\\.\\d+", doffs_line)[0])
-        baseline = float(re.findall("\\d", baseline_line)[0])
-        width = float(re.findall("\\d", width_line)[0])
-        height = float(re.findall("\\d", height_line)[0])
-        ndisp = float(re.findall("\\d", ndisp_line)[0])
+        baseline = float(re.findall("\\d+", baseline_line)[0])
+        width = float(re.findall("\\d+", width_line)[0])
+        height = float(re.findall("\\d+", height_line)[0])
+        ndisp = float(re.findall("\\d+", ndisp_line)[0])
 
         return CalibrationData(width,height,cam0_cx,cam0_cy,cam0_f,doffs,baseline,ndisp)
 
