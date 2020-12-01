@@ -1,6 +1,6 @@
 pytest
 validators
-urllib3
+requests
 wget
 beautifulsoup4
 opencv-python
