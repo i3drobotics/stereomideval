@@ -60,7 +60,7 @@ setuptools.setup(
     package_dir={'stereomideval':'stereomideval'},
     install_requires=[
         'numpy; python_version == "3.5"','numpy==1.19.3; python_version > "3.5"',
-        'opencv-python','wget','beautifulsoup4'
+        'opencv-python','urllib3','wget','beautifulsoup4'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
