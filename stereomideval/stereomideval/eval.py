@@ -114,6 +114,8 @@ class WebscrapeMiddlebury:
         alg_names_list = []
         metric_list = []
         web_scene_name_suffix = WebscrapeMiddlebury.get_web_scene_name_suffix(dataset_type)
+        #TODO raise exception if can't find data
+        # (e.g. trying to compare image that is not on website table)
         # Iteration through rows in table
         for table_row in list(table_rows):
             # Find algorithm name in row data
