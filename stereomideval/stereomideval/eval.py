@@ -514,7 +514,7 @@ class Eval:
 
     @staticmethod
     def evaluate_match_data_list(match_data_list,
-        get_metric_rank=False,get_av_metric_rank=False,
+        get_metric_rank=False,get_av_metric_rank=False,dense=True,
         display_results=False,display_window_name="Results",display_wait=1000):
         """
         Evaluate match result list
@@ -540,7 +540,7 @@ class Eval:
 
             if get_metric_rank:
                 # Evaluate test data against all metrics
-                eval_result_list = Eval.eval_all_metrics_rank(match_data,dense=True)
+                eval_result_list = Eval.eval_all_metrics_rank(match_data,dense)
             else:
                 # Evaluate test data against all metrics
                 eval_result_list = Eval.eval_all_metrics(match_data.match_result)
@@ -554,7 +554,7 @@ class Eval:
 
         if get_av_metric_rank:
             metric_average_list = \
-                Eval.average_all_metrics_across_scenes_rank(eval_data_list,dense=True)
+                Eval.average_all_metrics_across_scenes_rank(eval_data_list,dense)
         else:
             metric_average_list = \
                 Eval.average_all_metrics_across_scenes(eval_result_list_list)
