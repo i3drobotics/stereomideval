@@ -311,7 +311,9 @@ class Metric:
             quantile_error (float): Q-th quantile of the data error
         """
         diff = Metric.calc_diff(ground_truth,test_data)
-        quantile_error = np.quantile(diff,quantile)
+        # Get the absolute difference (positive only)
+        abs_diff = np.abs(diff)
+        quantile_error = np.quantile(abs_diff,quantile)
         return quantile_error
 
     @staticmethod
@@ -326,7 +328,9 @@ class Metric:
             average (float): average error in test data
         """
         diff = Metric.calc_diff(ground_truth,test_data)
-        average = np.average(diff)
+        # Get the absolute difference (positive only)
+        abs_diff = np.abs(diff)
+        average = np.average(abs_diff)
         return average
 
     @staticmethod
