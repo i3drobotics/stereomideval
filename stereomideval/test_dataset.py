@@ -4,9 +4,11 @@ import validators
 from stereomideval.dataset import Dataset
 from stereomideval.exceptions import InvalidSceneName
 
+
 def test_init_dataset():
     """Test initalising Dataset class"""
     Dataset()
+
 
 def test_dataset_valid_scene_urls():
     """Test valid url creation for scenes"""
@@ -14,10 +16,12 @@ def test_dataset_valid_scene_urls():
         url = Dataset.get_url_from_scene(scene_name)
         assert validators.url(url)
 
+
 def test_check_valid_scene_names():
     """Test valid scene names"""
     for scene_name in Dataset.get_scene_list():
         assert InvalidSceneName.validate_scene_list(scene_name,Dataset.get_scene_list()) is None
+
 
 def test_catch_invalid_scene_name():
     """Test valid scene names"""

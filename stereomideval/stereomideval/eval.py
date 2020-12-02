@@ -11,6 +11,7 @@ from stereomideval.structures import DatasetType, EvaluationData
 from stereomideval.exceptions import ImageSizeNotEqual, InvalidSceneName
 from stereomideval.dataset import Dataset
 
+
 class WebscrapeMiddlebury:
     """Get table data from a webpage"""
     def __init__(self):
@@ -20,12 +21,12 @@ class WebscrapeMiddlebury:
     def get_web_scene_name_suffix(dataset_type):
         """Get web scene name suffix"""
         scene_name_suffix = ""
-        if not dataset_type == DatasetType.I:
+        if not dataset_type == DatasetType.imperfect:
             scene_name_suffix = dataset_type
         return scene_name_suffix
 
     @staticmethod
-    def get_table_url(test_or_training,sparsity,metric,mask,has_invalid):
+    def get_table_url(test_or_training, sparsity, metric, mask, has_invalid):
         """
         Get url for table on the Middlebury website using parameters
 
@@ -40,14 +41,14 @@ class WebscrapeMiddlebury:
             url (string): url to table based on given parameters
         """
         # define valid inputs for parameters
-        sparse_options = ["dense","sparse"]
-        test_train_options = ["test","training"]
+        sparse_options = ["dense", "sparse"]
+        test_train_options = ["test", "training"]
         metric_options = Metric.get_metrics_list()
-        mask_options = ["nonocc","all"]
-        has_invalid_options = ["true","false"]
+        mask_options = ["nonocc", "all"]
+        has_invalid_options = ["true", "false"]
 
         # check validitiy of parameters
-        if isinstance(has_invalid,bool):
+        if isinstance(has_invalid, bool):
             if has_invalid:
                 has_invalid = "true"
             else:
@@ -69,11 +70,11 @@ class WebscrapeMiddlebury:
         base_url += "?dbfile=../results3/results.db"
         db_arg_url = "&type={}&sparsity={}&stat={}&mask={}&hasInvalid={}&ids="
         # fill url with parameters
-        url = base_url+db_arg_url.format(test_or_training,sparsity,metric,mask,has_invalid)
+        url = base_url+db_arg_url.format(test_or_training, sparsity, metric, mask, has_invalid)
         return url
 
     @staticmethod
-    def get_av_metric_vals(metric,dense=True):
+    def get_av_metric_vals(metric, dense=True):
         """
         Get list of metrics values from Middlebury website
 
@@ -91,7 +92,7 @@ class WebscrapeMiddlebury:
         if not dense:
             dense_or_sparse = "sparse"
         # Get url for table on Middlebury website
-        url = WebscrapeMiddlebury.get_table_url("training",dense_or_sparse,metric,"all",False)
+        url = WebscrapeMiddlebury.get_table_url("training", dense_or_sparse, metric, "all", False)
         # disable warnings to avoid message:
         # 'InsecureRequestWarning: Unverified HTTPS request
         # is being made to host 'vision.middlebury.edu'.
@@ -101,9 +102,9 @@ class WebscrapeMiddlebury:
         print("Loading results from Middlebury website...")
         page = requests.get(url, verify=False)
         # Parse webpage
-        soup = BeautifulSoup(page.content,'html.parser')
+        soup = BeautifulSoup(page.content, 'html.parser')
         # Get stereo table from webpage
-        table = soup.find('table',{'id':'stereoTable'})
+        table = soup.find('table', {'id': 'stereoTable'})
         # Find table body
         table_body = table.find('tbody')
         # Find table body rows
@@ -115,16 +116,16 @@ class WebscrapeMiddlebury:
         # Iteration through rows in table
         for table_row in list(table_rows):
             # Find algorithm name in row data
-            alg_name = table_row.find('td',{'class':['algName']})
+            alg_name = table_row.find('td', {'class': ['algName']})
             # Find overall metric average in row data
-            metric_average = table_row.find('td',{'class':['data wtavg']},
-                partial=False)
+            metric_average = table_row.find('td', {'class': ['data wtavg']},
+                                            partial=False)
             # Check if metric average was found
             if metric_average is None:
                 # Find metric average with 'firstPlace'
                 # (the first row in the data has this extra class definition)
-                metric_average = table_row.find('td',{"class":["data wtavg firstPlace"]},
-                    partial=False)
+                metric_average = table_row.find('td', {"class": ["data wtavg firstPlace"]},
+                                                partial=False)
             # Check metric value and algorithm name were found
             if alg_name is not None and metric_average is not None:
                 # Add metric value and algorithm name to lists
@@ -132,10 +133,10 @@ class WebscrapeMiddlebury:
                 alg_names_list.append(alg_name.string)
             else:
                 raise Exception("Failed to find table data for metric average or algorithm name")
-        return alg_names_list,metric_average_list
+        return alg_names_list, metric_average_list
 
     @staticmethod
-    def get_metric_vals(metric,scene_name,dataset_type=DatasetType.I,dense=True):
+    def get_metric_vals(metric, scene_name, dataset_type=DatasetType.imperfect, dense=True):
         """
         Get list of metrics values from Middlebury website
 
@@ -150,12 +151,13 @@ class WebscrapeMiddlebury:
             metric_list (list(string)): list of values for given metric
         """
         # Check scene name is valid
-        InvalidSceneName.validate_scene_info_list(scene_name,Dataset.get_training_scene_list())
+        InvalidSceneName.validate_scene_info_list(scene_name, Dataset.get_training_scene_list())
         dense_or_sparse = "dense"
         if not dense:
             dense_or_sparse = "sparse"
         # Get url for table on Middlebury website
-        url = WebscrapeMiddlebury.get_table_url("training",dense_or_sparse,metric,"nonocc",False)
+        url = WebscrapeMiddlebury.get_table_url("training", dense_or_sparse,
+                                                metric, "nonocc", False)
         # disable warnings to avoid message:
         # 'InsecureRequestWarning: Unverified HTTPS request
         # is being made to host 'vision.middlebury.edu'.
@@ -165,9 +167,9 @@ class WebscrapeMiddlebury:
         print("Loading results from Middlebury website...")
         page = requests.get(url, verify=False)
         # Parse webpage
-        soup = BeautifulSoup(page.content,'html.parser')
+        soup = BeautifulSoup(page.content, 'html.parser')
         # Get stereo table from webpage
-        table = soup.find('table',{'id':'stereoTable'})
+        table = soup.find('table', {'id': 'stereoTable'})
         # Find table body
         table_body = table.find('tbody')
         # Find table body rows
@@ -180,17 +182,17 @@ class WebscrapeMiddlebury:
         # Iteration through rows in table
         for table_row in list(table_rows):
             # Find algorithm name in row data
-            alg_name = table_row.find('td',{'class':['algName']})
+            alg_name = table_row.find('td', {'class': ['algName']})
             # Find metric value in row data
-            metric_val = table_row.find('td',{
-                "class":["{} data datasetCol".format(scene_name+web_scene_name_suffix)]},
+            metric_val = table_row.find('td', {
+                "class": ["{} data datasetCol".format(scene_name+web_scene_name_suffix)]},
                 partial=False)
             # Check if metric value was found
             if metric_val is None:
                 # Find metric value with 'firstPlace'
                 # (the first row in the data has this extra class definition)
-                metric_val = table_row.find('td',{
-                    "class":["{} firstPlace data datasetCol".format(
+                metric_val = table_row.find('td', {
+                    "class": ["{} firstPlace data datasetCol".format(
                         scene_name+web_scene_name_suffix)]},
                     partial=False)
             # Check metric value and algorithm name were found
@@ -200,7 +202,7 @@ class WebscrapeMiddlebury:
                 alg_names_list.append(alg_name.string)
             else:
                 raise Exception("Failed to find table data for metric value or algorithm name")
-        return alg_names_list,metric_list
+        return alg_names_list, metric_list
 
 
 class Timer:
@@ -230,6 +232,7 @@ class Timer:
         elapsed_time = time.time() - self.start_time
         return elapsed_time
 
+
 class Metric:
     """
     Metrics used for evaluating data in the Middlebury dataset
@@ -248,20 +251,53 @@ class Metric:
     time = "time"
     time_mp = "time/MP"
     time_gd = "time/Gdisp"
+    TIME_METRICS = [time, time_mp, time_gd]
+    BAD_METRICS = [bad050, bad100, bad200, bad400]
+    QUANTILE_METRICS = [a50, a90, a95, a99]
 
     @staticmethod
     def get_metrics_list():
         """Get metric strings as a list"""
         m = Metric
         return [
-            m.bad050,m.bad100,m.bad200,m.bad400,
-            m.avgerr,m.rms,
-            m.a50,m.a90,m.a95,m.a99,
-            m.time,m.time_mp,m.time_gd
+            m.bad050, m.bad100, m.bad200, m.bad400,
+            m.avgerr, m.rms,
+            m.a50, m.a90, m.a95, m.a99,
+            m.time, m.time_mp, m.time_gd
         ]
 
     @staticmethod
-    def calc_time_mp(test_data,match_time):
+    def get_quantile_percentage(metric):
+        """Get percentage value for quantile error metrics"""
+        if metric not in Metric.QUANTILE_METRICS:
+            raise Exception("Must provided quantile matric e.g. Metric.a50")
+        if metric == Metric.a50:
+            percentage = 0.5
+        elif metric == Metric.a90:
+            percentage = 0.9
+        elif metric == Metric.a95:
+            percentage = 0.95
+        elif metric == Metric.a99:
+            percentage = 0.99
+        return percentage
+
+    @staticmethod
+    def get_bad_percentage(metric):
+        """Get percentage value for bad pixel error metrics"""
+        if metric not in Metric.BAD_METRICS:
+            raise Exception("Must provided bad matric e.g. Metric.bad050")
+        if metric == Metric.bad050:
+            percentage = 0.5
+        elif metric == Metric.bad100:
+            percentage = 1
+        elif metric == Metric.bad200:
+            percentage = 2
+        elif metric == Metric.bad400:
+            percentage = 4
+        return percentage
+
+    @staticmethod
+    def calc_time_mp(test_data, match_time):
         """
         Time normalised by number of megapixels
 
@@ -279,7 +315,7 @@ class Metric:
         return norm_time
 
     @staticmethod
-    def calc_time_gd(test_data,match_time,ndisp):
+    def calc_time_gd(test_data, match_time, ndisp):
         """
         Time normalised by number of disparity hypotheses
 
@@ -310,10 +346,10 @@ class Metric:
         Returns:
             quantile_error (float): Q-th quantile of the data error
         """
-        diff = Metric.calc_diff(ground_truth,test_data)
+        diff = Metric.calc_diff(ground_truth, test_data)
         # Get the absolute difference (positive only)
         abs_diff = np.abs(diff)
-        quantile_error = np.quantile(abs_diff,quantile)
+        quantile_error = np.quantile(abs_diff, quantile)
         return quantile_error
 
     @staticmethod
@@ -327,7 +363,7 @@ class Metric:
         Returns:
             average (float): average error in test data
         """
-        diff = Metric.calc_diff(ground_truth,test_data)
+        diff = Metric.calc_diff(ground_truth, test_data)
         # Get the absolute difference (positive only)
         abs_diff = np.abs(diff)
         average = np.average(abs_diff)
@@ -345,16 +381,16 @@ class Metric:
             diff (numpy): test data subtracted from ground truth
         """
         # Check images are the same size
-        ImageSizeNotEqual.validate(test_data,ground_truth)
+        ImageSizeNotEqual.validate(test_data, ground_truth)
         # Replace nan and inf values with zero
-        test_data_no_nan = np.nan_to_num(test_data, nan=0.0,posinf=0.0,neginf=0.0)
-        ground_truth_no_nan = np.nan_to_num(ground_truth, nan=0.0,posinf=0.0,neginf=0.0)
+        test_data_no_nan = np.nan_to_num(test_data, nan=0.0, posinf=0.0, neginf=0.0)
+        ground_truth_no_nan = np.nan_to_num(ground_truth, nan=0.0, posinf=0.0, neginf=0.0)
         # Subtract test data from ground truth to find difference
-        diff = np.subtract(test_data_no_nan,ground_truth_no_nan)
+        diff = np.subtract(test_data_no_nan, ground_truth_no_nan)
         return diff
 
     @staticmethod
-    def calc_bad_pix_error(ground_truth,test_data,threshold=2.0):
+    def calc_bad_pix_error(ground_truth, test_data, threshold=2.0):
         """
         Bad pixel error
 
@@ -369,9 +405,9 @@ class Metric:
         Returns:
             perc_bad (float): Bad pixel percentage error in test data.
         """
-        ImageSizeNotEqual.validate(test_data,ground_truth)
+        ImageSizeNotEqual.validate(test_data, ground_truth)
         # Calculate pixel difference between ground truth and test data
-        diff = Metric.calc_diff(ground_truth,test_data)
+        diff = Metric.calc_diff(ground_truth, test_data)
         # Get the absolute difference (positive only)
         abs_diff = np.abs(diff)
         # Count number of 'bad' pixels
@@ -397,9 +433,9 @@ class Metric:
                 the lower the error, the more "similar" the two images
         """
         # Check test data and ground truth are the same size
-        ImageSizeNotEqual.validate(test_data,ground_truth)
+        ImageSizeNotEqual.validate(test_data, ground_truth)
         # Calculate the root of mse
-        rmse = math.sqrt(Metric.calc_mse(ground_truth,test_data))
+        rmse = math.sqrt(Metric.calc_mse(ground_truth, test_data))
         return rmse
 
     @staticmethod
@@ -417,28 +453,29 @@ class Metric:
             err (float): Mean squared error of two images,
                 the lower the error, the more "similar" the two images
         """
-        ImageSizeNotEqual.validate(test_data,ground_truth)
+        ImageSizeNotEqual.validate(test_data, ground_truth)
         # Calculate difference (error) between ground truth and test data
-        diff = Metric.calc_diff(ground_truth,test_data)
+        diff = Metric.calc_diff(ground_truth, test_data)
         # Calculate mean of the square error
         err = np.square(diff).mean()
         return err
 
+
 class Eval:
     """Evaluate disparity image against ground truth"""
     @staticmethod
-    def display_results(match_result,eval_result_list=None,window_name="Results",wait=1000):
+    def display_results(match_result, eval_result_list=None, window_name="Results", wait=1000):
         """Display match results and evaluation to OpenCV window"""
         match_result_image = match_result.match_result
         ground_truth = match_result.ground_truth
         left_image = match_result.left_image
         right_image = match_result.right_image
         # remove negative disparities
-        match_result_image[match_result_image<0]=0.0
-        ground_truth[ground_truth<0]=0.0
+        match_result_image[match_result_image < 0] = 0.0
+        ground_truth[ground_truth < 0] = 0.0
         # Replace nan and inf values with zero
-        match_result_image = np.nan_to_num(match_result_image, nan=0.0,posinf=0.0,neginf=0.0)
-        ground_truth = np.nan_to_num(ground_truth, nan=0.0,posinf=0.0,neginf=0.0)
+        match_result_image = np.nan_to_num(match_result_image, nan=0.0, posinf=0.0, neginf=0.0)
+        ground_truth = np.nan_to_num(ground_truth, nan=0.0, posinf=0.0, neginf=0.0)
         # normalise image
         match_result_image = cv2.normalize(match_result_image, None, 0, 255, cv2.NORM_MINMAX)
         ground_truth = cv2.normalize(ground_truth, None, 0, 255, cv2.NORM_MINMAX)
@@ -456,7 +493,7 @@ class Eval:
         # Concatinate images
         disp_images = cv2.hconcat([ground_truth, match_result_image])
         stereo_image = cv2.hconcat([left_image, right_image])
-        display_image = cv2.vconcat([stereo_image,disp_images])
+        display_image = cv2.vconcat([stereo_image, disp_images])
 
         if eval_result_list is not None:
             # Print metrics on display image
@@ -473,15 +510,15 @@ class Eval:
                         msg += "\n"
             display_image = puttext_multiline(
                 img=display_image, text=msg, org=(10, 10), font=cv2.FONT_HERSHEY_TRIPLEX,
-                font_scale=0.7, color=(0, 0, 0), thickness=1, outline_color=(255,255,255))
+                font_scale=0.7, color=(0, 0, 0), thickness=1, outline_color=(255, 255, 255))
 
         # Display in OpenCV window
         cv2.imshow(window_name, display_image)
         cv2.waitKey(wait)
 
     @staticmethod
-    def evaluate_match_result_list(match_result_list,
-        display_results=False,display_window_name="Results",display_wait=1000):
+    def evaluate_match_result_list(match_result_list, display_results=False,
+                                   display_window_name="Results", display_wait=1000):
         """
         Evaluate match result list
 
@@ -502,7 +539,8 @@ class Eval:
             eval_result_list = Eval.eval_all_metrics(match_result)
             if display_results:
                 # Display evaluation results to OpenCV window
-                Eval.display_results(match_result,eval_result_list,display_window_name,display_wait)
+                Eval.display_results(match_result, eval_result_list,
+                                     display_window_name, display_wait)
             eval_result_list_list.append(eval_result_list)
 
         metric_average_list = \
@@ -511,15 +549,15 @@ class Eval:
         print("Metric average over all test data:")
         for metric_average in metric_average_list:
             msg = "{}: {} ({})"
-            msg = msg.format(metric_average.metric,metric_average.result,metric_average.rank)
+            msg = msg.format(metric_average.metric, metric_average.result, metric_average.rank)
             print(msg)
 
         return metric_average_list, eval_result_list_list
 
     @staticmethod
-    def evaluate_match_data_list(match_data_list,
-        get_metric_rank=False,get_av_metric_rank=False,dense=True,
-        display_results=False,display_window_name="Results",display_wait=1000):
+    def evaluate_match_data_list(match_data_list, get_metric_rank=False, get_av_metric_rank=False,
+                                 dense=True, display_results=False, display_window_name="Results",
+                                 display_wait=1000):
         """
         Evaluate match result list
 
@@ -544,21 +582,21 @@ class Eval:
 
             if get_metric_rank:
                 # Evaluate test data against all metrics
-                eval_result_list = Eval.eval_all_metrics_rank(match_data,dense)
+                eval_result_list = Eval.eval_all_metrics_rank(match_data, dense)
             else:
                 # Evaluate test data against all metrics
                 eval_result_list = Eval.eval_all_metrics(match_data.match_result)
 
             if display_results:
-                Eval.display_results(match_data.match_result,eval_result_list,
-                    display_window_name,display_wait)
-            eval_data = EvaluationData(scene_info,eval_result_list)
+                Eval.display_results(match_data.match_result, eval_result_list,
+                                     display_window_name, display_wait)
+            eval_data = EvaluationData(scene_info, eval_result_list)
             eval_data_list.append(eval_data)
             eval_result_list_list.append(eval_result_list)
 
         if get_av_metric_rank:
             metric_average_list = \
-                Eval.average_all_metrics_across_scenes_rank(eval_data_list,dense)
+                Eval.average_all_metrics_across_scenes_rank(eval_data_list, dense)
         else:
             metric_average_list = \
                 Eval.average_all_metrics_across_scenes(eval_result_list_list)
@@ -566,13 +604,13 @@ class Eval:
         print("Weighted metric average over all test data:")
         for metric_average in metric_average_list:
             msg = "{}: {} ({})"
-            msg = msg.format(metric_average.metric,metric_average.result,metric_average.rank)
+            msg = msg.format(metric_average.metric, metric_average.result, metric_average.rank)
             print(msg)
 
         return metric_average_list, eval_data_list
 
     @staticmethod
-    def get_average_metric_rank(value,metric,dense=True):
+    def get_average_metric_rank(value, metric, dense=True):
         """
         Compare new value to middlebury metric and
         calculate it's rank when compared to the current
@@ -586,7 +624,7 @@ class Eval:
         Returns:
             rank (int): rank position of value when compared to metric list
         """
-        _,metric_avs = WebscrapeMiddlebury.get_av_metric_vals(metric,dense)
+        _, metric_avs = WebscrapeMiddlebury.get_av_metric_vals(metric, dense)
         if len(metric_avs) <= 0:
             raise Exception("Failed to receive metric averages from Middlebury webpage")
         print("Comparing against {} results...".format(len(metric_avs)))
@@ -597,7 +635,7 @@ class Eval:
         return metric_ranks[-1]
 
     @staticmethod
-    def get_metric_rank(metric,scene_name,value,dataset_type=DatasetType.I,dense=True):
+    def get_metric_rank(metric, scene_name, value, dataset_type=DatasetType.imperfect, dense=True):
         """
         Compare new value to middlebury metric and
         calculate it's rank when compared to the current
@@ -611,7 +649,8 @@ class Eval:
         Returns:
             rank (int): rank position of value when compared to metric list
         """
-        _,metric_vals = WebscrapeMiddlebury.get_metric_vals(metric,scene_name,dataset_type,dense)
+        _, metric_vals = WebscrapeMiddlebury.get_metric_vals(metric, scene_name,
+                                                             dataset_type, dense)
         if len(metric_vals) <= 0:
             raise Exception("Failed to receive metric values from Middlebury webpage")
         print("Comparing against {} results...".format(len(metric_vals)))
@@ -634,24 +673,24 @@ class Eval:
         """
         # Get data length
         data_len = len(data)
-        ivec=sorted(range(len(data)), key=data.__getitem__)
-        svec=[data[rank] for rank in ivec]
+        ivec = sorted(range(len(data)), key=data.__getitem__)
+        svec = [data[rank] for rank in ivec]
         sumranks = 0
         dupcount = 0
         newarray = [0]*data_len
         for data_index in range(data_len):
             sumranks += data_index
             dupcount += 1
-            if data_index==data_len-1 or svec[data_index] != svec[data_index+1]:
+            if data_index == data_len-1 or svec[data_index] != svec[data_index+1]:
                 averank = sumranks / float(dupcount) + 1
-                for j in range(data_index-dupcount+1,data_index+1):
+                for j in range(data_index-dupcount+1, data_index+1):
                     newarray[ivec[j]] = int(averank)
                 sumranks = 0
                 dupcount = 0
         return newarray
 
     @staticmethod
-    def average_all_metrics_across_scenes_rank(evaluation_data_list,dense=True):
+    def average_all_metrics_across_scenes_rank(evaluation_data_list, dense=True):
         """
         Evaluate all metrics across all scenes and compare rank
 
@@ -667,7 +706,7 @@ class Eval:
         # Run evaluation for each metric
         for metric in Metric.get_metrics_list():
             metric_average = \
-                Eval.average_metric_across_scenes_rank(metric,evaluation_data_list,dense)
+                Eval.average_metric_across_scenes_rank(metric, evaluation_data_list, dense)
             metric_average_list.append(metric_average)
 
         return metric_average_list
@@ -687,12 +726,12 @@ class Eval:
         metric_average_list = []
         # Run evaluation for each metric
         for metric in Metric.get_metrics_list():
-            metric_average = Eval.average_metric_across_scenes(metric,evaluation_result_list_list)
+            metric_average = Eval.average_metric_across_scenes(metric, evaluation_result_list_list)
             metric_average_list.append(metric_average)
         return metric_average_list
 
     @staticmethod
-    def average_metric_across_scenes_rank(metric,evaluation_data_list,dense=True):
+    def average_metric_across_scenes_rank(metric, evaluation_data_list, dense=True):
         """
         Evaluate metric result and rank across all scenes
 
@@ -727,23 +766,23 @@ class Eval:
             average += metric_result_val * scene_info.weight
             scene_count += 1
         average = average / scene_count
-        average_metric_result = EvaluationData.EvaluationResult(metric,average)
+        average_metric_result = EvaluationData.EvaluationResult(metric, average)
 
         if average_metric_result.result is None:
             raise Exception("Failed to find result value for {} metric".format(metric))
 
         # Compare result with Middlebury results and return rank
         msg = "Comparing average {} result of {:.2f} with online results..."
-        msg = msg.format(metric,average_metric_result.result)
+        msg = msg.format(metric, average_metric_result.result)
         print(msg)
         average_metric_result.rank = \
-            Eval.get_average_metric_rank(average_metric_result.result,metric,dense)
+            Eval.get_average_metric_rank(average_metric_result.result, metric, dense)
         print("Average {} result of {:.2f} is rank {}".format(
-            metric,average_metric_result.result,average_metric_result.rank))
+            metric, average_metric_result.result, average_metric_result.rank))
         return average_metric_result
 
     @staticmethod
-    def average_metric_across_scenes(metric,evaluation_result_list_list):
+    def average_metric_across_scenes(metric, evaluation_result_list_list):
         """
         Evaluate metric result across all scenes
 
@@ -776,7 +815,7 @@ class Eval:
             average += metric_result_val
             scene_count += 1
         average = average / scene_count
-        average_metric_result = EvaluationData.EvaluationResult(metric,average)
+        average_metric_result = EvaluationData.EvaluationResult(metric, average)
         return average_metric_result
 
     @staticmethod
@@ -798,7 +837,7 @@ class Eval:
         # Run evaluation for each metric
         for metric in Metric.get_metrics_list():
             # Evaluate metric and compare rank
-            metric_result = Eval.eval_metric_rank(metric,match_data,dense)
+            metric_result = Eval.eval_metric_rank(metric, match_data, dense)
             # Add metric result to list
             metric_result_list.append(metric_result)
         return metric_result_list
@@ -833,38 +872,35 @@ class Eval:
 
         Parameters:
             metric (Eval.Metrics): Evaluation metrics to calculate
-            ground_truth (numpy): 2D ground truth image
-            test_data (numpy): 2D test image
-            scene_name (string): name of scene from Middlebury stereo dataset (2014)
-            elapsed_time (float): time to complete match (only used in time metrics)
-            TODO
+            match_data (Structures.MatchData): match data (see Structures.py for details)
+            dense (bool): compare to dense online ranking table
 
         Returns:
-            TODO:
+            metric_result (Structures.EvaluationResult): metric result
         """
         # Check metric is valid
         if metric not in Metric.get_metrics_list():
             raise Exception("Invalid metric")
         scene_info = match_data.scene_info
         # Run evaluation routine based on metric chosen
-        metric_result = Eval.eval_metric(metric,match_data.match_result)
+        metric_result = Eval.eval_metric(metric, match_data.match_result)
 
         if metric_result.result is None:
             raise Exception("Failed to evaluate metric {}".format(metric))
 
         # Compare result with Middlebury results and return rank
         print("Comparing {} result of {:.2f} with online results...".format(
-            metric,metric_result.result))
+            metric, metric_result.result))
         scene_info = match_data.scene_info
         metric_result.rank = Eval.get_metric_rank(
             metric, scene_info.scene_name, metric_result.result,
-            scene_info.dataset_type,dense)
+            scene_info.dataset_type, dense)
 
         if metric_result.rank is None:
             raise Exception("Failed to get {} rank".format(metric))
 
         print("{} result of {:.2f} is rank {}".format(
-            metric,metric_result.result,metric_result.rank))
+            metric, metric_result.result, metric_result.rank))
 
         return metric_result
 
@@ -875,67 +911,45 @@ class Eval:
 
         Parameters:
             metric (Eval.Metrics): Evaluation metrics to calculate
-            ground_truth (numpy): 2D ground truth image
-            test_data (numpy): 2D test image
-            scene_name (string): name of scene from Middlebury stereo dataset (2014)
-            elapsed_time (float): time to complete match (only used in time metrics)
+            match_data (Structures.MatchData): match data (see Structures.py for details)
 
         Returns:
-            TODO:
+            metric_result (Structures.EvaluationResult): metric result
         """
+        # TODO fix 'PEP8 C901 function is too complex (12)'
         # Check metric is valid
         if metric not in Metric.get_metrics_list():
             raise Exception("Invalid metric")
+        # Check match time parameter is defined when using time metrics
+        if match_result.match_time is None:
+            raise Exception("Match time parameter is missing")
         # Initalise return variable
         result = None
         print("Evaluating {} metric...".format(metric))
         # Run evaluation routine based on metric chosen
-        if metric == Metric.bad050:
+        if metric in Metric.BAD_METRICS:
+            bad_perc = Metric.get_bad_percentage(metric)
             result = Metric.calc_bad_pix_error(
-                match_result.ground_truth,match_result.match_result,0.5)
-        elif metric == Metric.bad100:
-            result = Metric.calc_bad_pix_error(
-                match_result.ground_truth,match_result.match_result,1)
-        elif metric == Metric.bad200:
-            result = Metric.calc_bad_pix_error(
-                match_result.ground_truth,match_result.match_result,2)
-        elif metric == Metric.bad400:
-            result = Metric.calc_bad_pix_error(
-                match_result.ground_truth,match_result.match_result,4)
+                match_result.ground_truth, match_result.match_result, bad_perc)
+        elif metric in Metric.QUANTILE_METRICS:
+            quantile_perc = Metric.get_quantile_percentage(metric)
+            result = Metric.calc_quantile(
+                match_result.ground_truth, match_result.match_result, quantile_perc)
+        elif metric in Metric.TIME_METRICS:
+            if metric == Metric.time:
+                result = match_result.match_time
+            elif metric == Metric.time_mp:
+                result = Metric.calc_time_mp(match_result.match_result, match_result.match_time)
+            elif metric == Metric.time_gd:
+                if match_result.ndisp is None:
+                    raise Exception("number of disparities parameter is missing")
+                result = Metric.calc_time_gd(match_result.match_result,
+                                             match_result.match_time,
+                                             match_result.ndisp)
         elif metric == Metric.rms:
-            result = Metric.calc_rmse(match_result.ground_truth,match_result.match_result)
+            result = Metric.calc_rmse(match_result.ground_truth, match_result.match_result)
         elif metric == Metric.avgerr:
-            result = Metric.calc_avgerr(match_result.ground_truth,match_result.match_result)
-        elif metric == Metric.a50:
-            result = Metric.calc_quantile(match_result.ground_truth,match_result.match_result,0.5)
-        elif metric == Metric.a90:
-            result = Metric.calc_quantile(match_result.ground_truth,match_result.match_result,0.9)
-        elif metric == Metric.a95:
-            result = Metric.calc_quantile(match_result.ground_truth,match_result.match_result,0.95)
-        elif metric == Metric.a99:
-            result = Metric.calc_quantile(match_result.ground_truth,match_result.match_result,0.99)
-        elif metric == Metric.time:
-            # Check elapsed time parameter is defined
-            if match_result.match_time is None:
-                raise Exception("Match time parameter is missing")
-            result = match_result.match_time
-        elif metric == Metric.time_mp:
-            # Check elapsed time parameter is defined
-            if match_result.match_time is None:
-                raise Exception("Match time parameter is missing")
-            result = Metric.calc_time_mp(match_result.match_result,match_result.match_time)
-        elif metric == Metric.time_gd:
-            # Check elapsed time parameter is defined
-            if match_result.match_time is None:
-                raise Exception("Match time parameter is missing")
-            if match_result.ndisp is None:
-                raise Exception("number of disparities parameter is missing")
-            result = Metric.calc_time_gd(
-                match_result.match_result,match_result.match_time,match_result.ndisp)
-        else:
-            msg = "Evalutation method not found for this metric: {}"
-            msg = msg.format(metric)
-            raise Exception(msg)
+            result = Metric.calc_avgerr(match_result.ground_truth, match_result.match_result)
 
-        metric_result = EvaluationData.EvaluationResult(metric,result)
+        metric_result = EvaluationData.EvaluationResult(metric, result)
         return metric_result

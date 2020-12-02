@@ -1,13 +1,14 @@
 """Exceptions"""
 import os
 
+
 class ImageSizeNotEqual(Exception):
     """Image size not equal exception"""
     def __str__(self):
         return "Image sizes must be equal"
 
     @staticmethod
-    def validate(image_a,image_b):
+    def validate(image_a, image_b):
         """
         Validate standard exception condition.
         Raises exception if validation fails.
@@ -18,6 +19,7 @@ class ImageSizeNotEqual(Exception):
         """
         if image_a.shape != image_b.shape:
             raise ImageSizeNotEqual()
+
 
 class InvalidSceneName(Exception):
     """Invalid scene exception"""
@@ -34,7 +36,7 @@ class InvalidSceneName(Exception):
         return self.message
 
     @staticmethod
-    def validate_scene_list(scene_name,scene_list):
+    def validate_scene_list(scene_name, scene_list):
         """
         Validate standard exception condition.
         Raises exception if validation fails.
@@ -47,7 +49,7 @@ class InvalidSceneName(Exception):
             raise InvalidSceneName(scene_name)
 
     @staticmethod
-    def validate_scene_info_list(scene_name,scene_info_list):
+    def validate_scene_info_list(scene_name, scene_info_list):
         """
         Validate standard exception condition.
         Raises exception if validation fails.
@@ -61,6 +63,7 @@ class InvalidSceneName(Exception):
             if scene_name == scene_info.scene_name:
                 return
         raise InvalidSceneName(scene_name)
+
 
 class MalformedPFM(Exception):
     """Malformed PFM file exception"""
@@ -77,6 +80,7 @@ class MalformedPFM(Exception):
     def __str__(self):
         """Overload of exception message"""
         return self.message
+
 
 class PathNotFound(Exception):
     """Path not found exception"""

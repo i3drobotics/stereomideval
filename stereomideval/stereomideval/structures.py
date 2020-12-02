@@ -1,11 +1,14 @@
 """Structures"""
 
+
 class DatasetType:
     """Dataset type"""
-    I = 'I'
-    E = 'E'
-    L = 'L'
-    P = 'P'
+    imperfect = 'I'
+    exposure_changed = 'E'
+    lighting_changed = 'L'
+    perfect = 'P'
+    SCENE_CHANGED_TYPES = [exposure_changed,lighting_changed]
+
 
 class CalibrationData:
     """
@@ -13,7 +16,7 @@ class CalibrationData:
 
     Used to make returning and accessing calibration data simple.
     """
-    def __init__(self,width,height,c_x,c_y,focal_length,doffs,baseline,ndisp):
+    def __init__(self, width, height, c_x, c_y, focal_length, doffs, baseline, ndisp):
         """
         Initalisaiton of CalibrationData structure
 
@@ -33,13 +36,14 @@ class CalibrationData:
         self.baseline = baseline
         self.ndisp = ndisp
 
+
 class TestData:
     """
     Test data
 
     Used to make returning and accessing scene data simple.
     """
-    def __init__(self,left_image,right_image,disp_image,depth_image,ndisp):
+    def __init__(self, left_image, right_image, disp_image, depth_image, ndisp):
         """
         Initalisaiton of TestData structure
 
@@ -57,11 +61,12 @@ class TestData:
         self.depth_image = depth_image
         self.ndisp = ndisp
 
+
 class SceneInfo:
     """
     Scene info
     """
-    def __init__(self,scene_name,dataset_type,weight=1.0):
+    def __init__(self, scene_name, dataset_type, weight=1.0):
         """
         Initalisaiton of SceneInfo structure
 
@@ -73,16 +78,17 @@ class SceneInfo:
 
     def get_unique_name(self):
         scene_uniq_name = self.scene_name
-        if self.dataset_type != DatasetType.I:
+        if self.dataset_type != DatasetType.imperfect:
             scene_uniq_name = self.scene_name+self.dataset_type
         return scene_uniq_name
+
 
 class MatchData:
     """Match data"""
 
     class MatchResult:
         """Match result"""
-        def __init__(self,left_image,right_image,ground_truth,match_result,match_time,ndisp=None):
+        def __init__(self, left_image, right_image, ground_truth, match_result, match_time, ndisp=None):
             self.left_image = left_image
             self.right_image = right_image
             self.ground_truth = ground_truth
@@ -90,20 +96,21 @@ class MatchData:
             self.match_time = match_time
             self.ndisp = ndisp
 
-    def __init__(self,scene_info,match_result):
+    def __init__(self, scene_info, match_result):
         self.scene_info = scene_info
         self.match_result = match_result
+
 
 class EvaluationData:
     """Evaluation data"""
     class EvaluationResult:
         """Evaluation result"""
-        def __init__(self,metric,result,rank=None,ndisp=None):
+        def __init__(self, metric, result, rank=None, ndisp=None):
             self.metric = metric
             self.result = result
             self.rank = rank
             self.ndisp = ndisp
 
-    def __init__(self,scene_info,eval_result_list):
+    def __init__(self, scene_info, eval_result_list):
         self.scene_info = scene_info
         self.eval_result_list = eval_result_list

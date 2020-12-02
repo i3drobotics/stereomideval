@@ -7,6 +7,7 @@ and includes tools evaluatating stereo matching algorithms
 import numpy as np
 import cv2
 
+
 def normalise_disp(disp_image):
     """
     Normalise disparity image
@@ -18,14 +19,15 @@ def normalise_disp(disp_image):
     """
     norm_disp_image = disp_image
     # remove negative disparities
-    norm_disp_image[norm_disp_image<0]=0.0
+    norm_disp_image[norm_disp_image < 0] = 0.0
     # Replace nan and inf values with zero
-    norm_disp_image = np.nan_to_num(norm_disp_image, nan=0.0,posinf=0.0,neginf=0.0)
+    norm_disp_image = np.nan_to_num(norm_disp_image, nan=0.0, posinf=0.0, neginf=0.0)
     # normalise image
     norm_disp_image = cv2.normalize(norm_disp_image, None, 0, 255, cv2.NORM_MINMAX)
     # convert to uint8
     norm_disp_image = norm_disp_image.astype(np.uint8)
     return norm_disp_image
+
 
 def colormap_disp(disp_image):
     """
@@ -40,6 +42,7 @@ def colormap_disp(disp_image):
     colormap_disp_image = cv2.applyColorMap(colormap_disp_image, cv2.COLORMAP_JET)
     return colormap_disp_image
 
+
 # Helpful functions
 def in_dictlist(key, value, my_dictlist):
     """Check if key value pair exists in dictionary"""
@@ -48,9 +51,9 @@ def in_dictlist(key, value, my_dictlist):
             return True
     return False
 
-def puttext_multiline(img, text, org, font,  
-        font_scale, color, thickness, line_type=cv2.LINE_AA,
-        line_spacing=1.5, outline_color=None):
+
+def puttext_multiline(img, text, org, font, font_scale, color, thickness,
+                      line_type=cv2.LINE_AA, line_spacing=1.5, outline_color=None):
     """
     Draws multiline with an outline.
     """
@@ -92,7 +95,8 @@ def puttext_multiline(img, text, org, font,
         uv_top_left += [0, height * line_spacing]
     return img
 
-def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
+
+def image_resize(image, width=None, height=None, inter=cv2.INTER_AREA):
     """
     Resize image based on height or width while maintaning aspect ratio
     Parameters:
@@ -131,8 +135,7 @@ def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
         dim = (width, int(current_height * ratio))
 
     # resize the image
-    resized = cv2.resize(image, dim, interpolation = inter)
+    resized = cv2.resize(image, dim, interpolation=inter)
 
     # return the resized image
     return resized
-        

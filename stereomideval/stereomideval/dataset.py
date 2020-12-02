@@ -10,6 +10,7 @@ import wget
 from stereomideval.structures import DatasetType, CalibrationData, TestData, SceneInfo
 from stereomideval.exceptions import PathNotFound, MalformedPFM, InvalidSceneName
 
+
 class Dataset:
     """Download and read data from stereo Middlesbury dataset (2014)"""
 
@@ -49,11 +50,11 @@ class Dataset:
     Art = "Art"
     Teddy = "Teddy"
     STEREO_MIDDLEBURY_SCENES_2014 = [
-        Adirondack,Backpack,Bicycle1,Cable,Classroom1,
-        Couch,Flowers,Jadeplant,Mask,Motorcycle,
-        Piano,Pipes,Playroom,Playtable,Recycle,
-        Shelves,Shopvac,Sticks,Storage,
-        Sword1,Sword2,Umbrella,Vintage
+        Adirondack, Backpack, Bicycle1, Cable, Classroom1,
+        Couch, Flowers, Jadeplant, Mask, Motorcycle,
+        Piano, Pipes, Playroom, Playtable, Recycle,
+        Shelves, Shopvac, Sticks, Storage,
+        Sword1, Sword2, Umbrella, Vintage
     ]
     STEREO_MIDDLEBURY_SCENES_2003 = [
         Cones, Teddy
@@ -67,27 +68,27 @@ class Dataset:
         STEREO_MIDDLEBURY_SCENES_2005 + STEREO_MIDDLEBURY_SCENES_2014
 
     STEREO_MIDDLEBURY_TRAINING_SCENES = [
-        SceneInfo(Adirondack,DatasetType.I,1.0),
-        SceneInfo(Art,DatasetType.L,1.0),
-        SceneInfo(Jadeplant,DatasetType.I,1.0),
-        SceneInfo(Motorcycle,DatasetType.I,1.0),
-        SceneInfo(Motorcycle,DatasetType.E,1.0),
-        SceneInfo(Piano,DatasetType.I,1.0),
-        SceneInfo(Piano,DatasetType.L,0.5),
-        SceneInfo(Pipes,DatasetType.I,1.0),
-        SceneInfo(Playroom,DatasetType.I,0.5),
-        SceneInfo(Playtable,DatasetType.I,0.5),
-        SceneInfo(Playtable,DatasetType.P,1.0),
-        SceneInfo(Recycle,DatasetType.I,1.0),
-        SceneInfo(Shelves,DatasetType.I,0.5),
-        SceneInfo(Teddy,DatasetType.I,1.0),
-        SceneInfo(Vintage,DatasetType.I,0.5),
+        SceneInfo(Adirondack, DatasetType.imperfect, 1.0),
+        SceneInfo(Art, DatasetType.lighting_changed, 1.0),
+        SceneInfo(Jadeplant, DatasetType.imperfect, 1.0),
+        SceneInfo(Motorcycle, DatasetType.imperfect, 1.0),
+        SceneInfo(Motorcycle, DatasetType.exposure_changed, 1.0),
+        SceneInfo(Piano, DatasetType.imperfect, 1.0),
+        SceneInfo(Piano, DatasetType.lighting_changed, 0.5),
+        SceneInfo(Pipes, DatasetType.imperfect, 1.0),
+        SceneInfo(Playroom, DatasetType.imperfect, 0.5),
+        SceneInfo(Playtable, DatasetType.imperfect, 0.5),
+        SceneInfo(Playtable, DatasetType.perfect, 1.0),
+        SceneInfo(Recycle, DatasetType.imperfect, 1.0),
+        SceneInfo(Shelves, DatasetType.imperfect, 0.5),
+        SceneInfo(Teddy, DatasetType.imperfect, 1.0),
+        SceneInfo(Vintage, DatasetType.imperfect, 0.5),
     ]
 
-    #TODO: add 2014 test scenes (not in organised single zips like test data so requires more work)
+    # TODO: add 2014 test scenes (not in organised single zips like test data so requires more work)
 
     @staticmethod
-    def normalise_pfm_data(data,max_val_pct=0.1):
+    def normalise_pfm_data(data, max_val_pct=0.1):
         """
         Normalise disparity pfm image
 
@@ -136,7 +137,7 @@ class Dataset:
         if not os.path.exists(cal_filepath):
             print("Calibration file not found")
             print(cal_filepath)
-            raise PathNotFound(cal_filepath,"Calibration file not found")
+            raise PathNotFound(cal_filepath, "Calibration file not found")
 
         # Open calibration file
         file = open(cal_filepath, 'rb')
@@ -170,10 +171,11 @@ class Dataset:
         height = float(re.findall("\\d+", height_line)[0])
         ndisp = float(re.findall("\\d+", ndisp_line)[0])
 
-        return CalibrationData(width,height,cam0_cx,cam0_cy,cam0_f,doffs,baseline,ndisp)
+        cal_data = CalibrationData(width, height, cam0_cx, cam0_cy, cam0_f, doffs, baseline, ndisp)
+        return cal_data
 
     @staticmethod
-    def disp_to_depth(disp,focal_length,doffs,baseline):
+    def disp_to_depth(disp, focal_length, doffs, baseline):
         """
         Convert from disparity to depth using calibration file
 
@@ -206,7 +208,7 @@ class Dataset:
         """
         # Check file exists
         if not os.path.exists(filepath):
-            raise PathNotFound(filepath,"Pfm file does not exist")
+            raise PathNotFound(filepath, "Pfm file does not exist")
         # Open pfm file
         file = open(filepath, 'rb')
 
@@ -234,11 +236,11 @@ class Dataset:
 
         # Read data scale from file
         scale = float(file.readline().decode('utf-8').rstrip())
-        if scale < 0: # little-endian
+        if scale < 0:  # little-endian
             endian = '<'
             scale = -scale
         else:
-            endian = '>' # big-endian
+            endian = '>'  # big-endian
 
         # Read image data from pfm file
         data = np.fromfile(file, endian + 'f')
@@ -246,12 +248,12 @@ class Dataset:
         shape = (height, width, 3) if color else (height, width)
         data = np.reshape(data, shape)
         # Flip image vertically as image appears upside-down
-        data = cv2.flip(data,0)
+        data = cv2.flip(data, 0)
         return data, scale
 
     @staticmethod
-    def load_scene_disparity(scene_name,dataset_folder,
-        display_images=False,display_time=500,load_perfect=False):
+    def load_scene_disparity(scene_name, dataset_folder, display_images=False,
+                             display_time=500, load_perfect=False):
         """
         Load disparity image from scene folder
 
@@ -271,19 +273,19 @@ class Dataset:
         if scene_year == "2014":
             perfect_suffix = Dataset.get_perfect_suffix(load_perfect)
             # Get name of disparity image (pfm) in folder
-            disp_filename = os.path.join(dataset_folder,scene_name+perfect_suffix,"disp0.pfm")
+            disp_filename = os.path.join(dataset_folder, scene_name+perfect_suffix, "disp0.pfm")
         elif scene_year == "2003" or scene_year == "2005":
-            disp_filename = os.path.join(dataset_folder,scene_name,"disp0.png")
+            disp_filename = os.path.join(dataset_folder, scene_name, "disp0.png")
         # Check disparity file exists
         if not os.path.exists(disp_filename):
             print("Disparity pfm file does not exist")
             print(disp_filename)
-            raise PathNotFound(disp_filename,"Disparity pfm file does not exist")
+            raise PathNotFound(disp_filename, "Disparity pfm file does not exist")
         # Load disparity file to numpy image
         if scene_year == "2014":
             disp_image, _ = Dataset.load_pfm(disp_filename)
         elif scene_year == "2003" or scene_year == "2005":
-            disp_image = cv2.imread(disp_filename,cv2.IMREAD_UNCHANGED)
+            disp_image = cv2.imread(disp_filename, cv2.IMREAD_UNCHANGED)
         if display_images:
             # Display disparity image in opencv window
             norm_disp_image = Dataset.normalise_pfm_data(disp_image)
@@ -296,7 +298,7 @@ class Dataset:
     def get_perfect_suffix(dataset_type):
         """Get perfect suffix"""
         perfect_suffix = "-imperfect"
-        if dataset_type == DatasetType.P:
+        if dataset_type == DatasetType.perfect:
             perfect_suffix = "-perfect"
         return perfect_suffix
 
@@ -304,13 +306,13 @@ class Dataset:
     def get_image_suffix(dataset_type):
         """Get image suffix"""
         image_suffix = ""
-        if dataset_type == DatasetType.E or dataset_type == DatasetType.L:
+        if dataset_type in DatasetType.SCENE_CHANGED_TYPES:
             image_suffix = dataset_type
         return image_suffix
 
     @staticmethod
-    def load_scene_stereo_pair(scene_name,dataset_folder,
-            display_images=False,display_time=500,dataset_type=DatasetType.I):
+    def load_scene_stereo_pair(scene_name, dataset_folder, display_images=False, display_time=500,
+                               dataset_type=DatasetType.imperfect):
         """
         Load stereo pair images from scene folder
 
@@ -337,9 +339,11 @@ class Dataset:
             perfect_suffix = Dataset.get_perfect_suffix(dataset_type)
         # Define left and right image files in scene folder
         left_image_filepath = os.path.join(dataset_folder,
-            scene_name+perfect_suffix,left_image_filename)
+                                           scene_name+perfect_suffix,
+                                           left_image_filename)
         right_image_filepath = os.path.join(dataset_folder,
-            scene_name+perfect_suffix,right_image_filename)
+                                            scene_name+perfect_suffix,
+                                            right_image_filename)
         # Check left and right image files exist
         if not os.path.exists(left_image_filepath) or not os.path.exists(right_image_filepath):
             print("Left or right image file does not exist")
@@ -349,8 +353,8 @@ class Dataset:
                 left_image_filepath+","+right_image_filepath,
                 "Left or right image file does not exist")
         # Read left and right image files to numpy image
-        left_image = cv2.imread(left_image_filepath,cv2.IMREAD_UNCHANGED)
-        right_image = cv2.imread(right_image_filepath,cv2.IMREAD_UNCHANGED)
+        left_image = cv2.imread(left_image_filepath, cv2.IMREAD_UNCHANGED)
+        right_image = cv2.imread(right_image_filepath, cv2.IMREAD_UNCHANGED)
         if display_images:
             # Display left and right image files to OpenCV window
             left_image_resize = cv2.resize(left_image, dsize=(0, 0), fx=0.2, fy=0.2)
@@ -362,8 +366,8 @@ class Dataset:
         return left_image, right_image
 
     @staticmethod
-    def load_scene_data(scene_name,dataset_folder,
-        display_images=False,display_time=500,dataset_type=DatasetType.I):
+    def load_scene_data(scene_name, dataset_folder, display_images=False,
+                        display_time=500, dataset_type=DatasetType.imperfect):
         """Load scene data from scene folder
 
         Parameters:
@@ -378,36 +382,36 @@ class Dataset:
             scene_data (TestData): Data loaded from scene folder
                 (see TestData for details on this structure)
         """
-        InvalidSceneName.validate_scene_list(scene_name,Dataset.get_scene_list())
+        InvalidSceneName.validate_scene_list(scene_name, Dataset.get_scene_list())
         # Load stereo pair images from scene folder
         left_image, right_image = Dataset.load_scene_stereo_pair(
-            scene_name,dataset_folder,display_images,display_time,
+            scene_name, dataset_folder, display_images, display_time,
             dataset_type)
 
         # Load disparity image from scene folder
         disp_image = Dataset.load_scene_disparity(
-            scene_name,dataset_folder,display_images,display_time,
+            scene_name, dataset_folder, display_images, display_time,
             dataset_type)
 
         scene_year = Dataset.get_scene_year(scene_name)
         if scene_year == "2014":
             # Define path to calibration file in scene folder
             perfect_suffix = Dataset.get_perfect_suffix(dataset_type)
-            cal_file = os.path.join(dataset_folder,scene_name+perfect_suffix,"calib.txt")
+            cal_file = os.path.join(dataset_folder, scene_name+perfect_suffix, "calib.txt")
             # Get calibration data from calibration file
             cal_data = Dataset.load_cal(cal_file)
             ndisp = cal_data.ndisp
             # Calculate depth image from disparity using calibration file
-            depth_image = Dataset.disp_to_depth(disp_image,
-                cal_data.focal_length,cal_data.doffs,cal_data.baseline)
+            depth_image = Dataset.disp_to_depth(disp_image, cal_data.focal_length,
+                                                cal_data.doffs, cal_data.baseline)
         else:
             depth_image = None
-            #TODO replace this with list of files that don't have cal data on website
+            # TODO: replace this with list of files that don't have cal data on website
             # however all images in training dataset without calibration files have a
             # ndisp = 256
             ndisp = 256
 
-        return TestData(left_image,right_image,disp_image,depth_image,ndisp)
+        return TestData(left_image, right_image, disp_image, depth_image, ndisp)
 
     @staticmethod
     def get_scene_list():
@@ -420,7 +424,7 @@ class Dataset:
         return Dataset.STEREO_MIDDLEBURY_TRAINING_SCENES
 
     @staticmethod
-    def get_url_from_scene(scene_name,dataset_type=DatasetType.I):
+    def get_url_from_scene(scene_name, dataset_type=DatasetType.imperfect):
         """
         Get URL on middlebury servers for 2014 dataset for chosen scene
 
@@ -439,11 +443,11 @@ class Dataset:
             scene_name = scene_name.lower()
             base_url = "https://vision.middlebury.edu/stereo/data/scenes2003/"
             url_suffix = "newdata/{}/{}-png-2.zip"
-            url = base_url+url_suffix.format(scene_name,scene_name)
+            url = base_url+url_suffix.format(scene_name, scene_name)
         elif scene_year == "2005":
             # Images are not stored in zip file for this year.
             # Will return base url for this scene instead
-            url="https://vision.middlebury.edu/stereo/data/scenes2005/FullSize/Art/"
+            url = "https://vision.middlebury.edu/stereo/data/scenes2005/FullSize/Art/"
         return url
 
     @staticmethod
@@ -482,7 +486,102 @@ class Dataset:
         raise InvalidSceneName(scene_name)
 
     @staticmethod
-    def download_scene_data(scene_name,output_folder,dataset_type=DatasetType.I):
+    def download_scene_2005_data(scene_name, output_folder, url):
+        """
+        Download scene data for 2005 Middlebury data
+
+        Parameters:
+            scene_name (string): Scene to download from Middlesbury stereo dataset (2014)
+            output_folder (string): Path to download scene data
+            url (string): url to download from
+        """
+        scene_output_folder = os.path.join(output_folder, scene_name)
+        # Check scene folder doesn't already exist
+        if not os.path.exists(scene_output_folder):
+            # Create scene folder
+            os.makedirs(scene_output_folder)
+            img0_filepath = os.path.join(scene_output_folder, "im0.png")
+            img1_filepath = os.path.join(scene_output_folder, "im1L.png")
+            disp_filepath = os.path.join(scene_output_folder, "disp0.png")
+            # TODO: find cal data
+            filepaths = [img0_filepath, img1_filepath, disp_filepath]
+            base_url = url
+            urls = ["Illum1/Exp1/view1.png", "Illum2/Exp1/view5.png", "disp1.png"]
+            urls = [base_url + url for url in urls]
+            print("Downloading from: "+base_url)
+            for index, url in enumerate(urls):
+                filepath = filepaths[index]
+                # Check file doesn't already exist
+                if not os.path.exists(filepath):
+                    # download file from middlebury server
+                    wget.download(url, filepath, bar=Dataset.bar_progress)
+                else:
+                    msg = "Image file for dataset already exists here,"
+                    msg += "skipping download of file: " + filepath
+                    print(msg)
+        else:
+            print("Dataset already exists here, skipping re-download of "+scene_name)
+
+    @staticmethod
+    def download_scene_2014_2003_dataset(scene_name, output_folder, url, scene_year, dataset_type):
+        """
+        Download scene data for 2014 or 2003 Middlebury data
+
+        Parameters:
+            scene_name (string): Scene to download from Middlesbury stereo dataset (2014)
+            output_folder (string): Path to download scene data
+            url (string): url to download from
+            scene_year (string): '2014' or '2003'
+            dataset_type (DatasetType): used to get scene suffix folder naming
+        """
+        # Get perfect suffix from dataset ('-imperfect' or '-perfect')
+        scene_suffix = Dataset.get_perfect_suffix(dataset_type)
+        # Download dataset from middlebury servers
+        # Get name of scene data folder
+        if scene_year == "2014":
+            scene_output_folder = os.path.join(output_folder, scene_name+scene_suffix)
+        elif scene_year == "2003":
+            scene_output_folder = os.path.join(output_folder, scene_name)
+        # Define destination name for zip file
+        if scene_year == "2014":
+            zip_filepath = os.path.join(output_folder, scene_name+scene_suffix+".zip")
+        elif scene_year == "2003":
+            zip_filepath = os.path.join(output_folder, scene_name+".zip")
+        # Check scene folder doesn't already exist
+        if not os.path.exists(scene_output_folder):
+            # Check zip file doesn't already exist
+            if not os.path.exists(zip_filepath):
+                print("Downloading from: "+url)
+                # download file from middlebury server
+                wget.download(url, zip_filepath, bar=Dataset.bar_progress)
+            else:
+                msg = "Zip file for dataset already exists here,"
+                msg += "skipping download of file: " + zip_filepath
+                print(msg)
+            print("Extracting zip...")
+            # unzip downloaded file
+            with zipfile.ZipFile(zip_filepath, "r") as zip_ref:
+                zip_ref.extractall(output_folder)
+            if scene_year == "2003":
+                os.rename(
+                    os.path.join(output_folder, scene_name.lower()), scene_output_folder)
+                os.rename(
+                    os.path.join(scene_output_folder, "im2.png"),
+                    os.path.join(scene_output_folder, "im0.png"))
+                os.rename(
+                    os.path.join(scene_output_folder, "im6.png"),
+                    os.path.join(scene_output_folder, "im1.png"))
+                os.rename(
+                    os.path.join(scene_output_folder, "disp2.png"),
+                    os.path.join(scene_output_folder, "disp0.png"))
+                os.remove(os.path.join(scene_output_folder, "disp6.png"))
+            # removing zip file
+            os.remove(zip_filepath)
+        else:
+            print("Dataset already exists here, skipping re-download of "+scene_name)
+
+    @staticmethod
+    def download_scene_data(scene_name, output_folder, dataset_type=DatasetType.imperfect):
         """
         Download scene data
 
@@ -493,86 +592,18 @@ class Dataset:
         # Check output folder exists
         if os.path.exists(output_folder):
             # clean-up tmp files from incomplete downloads
-            tmp_files = glob.glob(os.path.join(output_folder,"*tmp"))
+            tmp_files = glob.glob(os.path.join(output_folder, "*tmp"))
             for tmp_file in tmp_files:
                 os.remove(tmp_file)
             # Get url from scene name
-            url = Dataset.get_url_from_scene(scene_name,dataset_type)
+            url = Dataset.get_url_from_scene(scene_name, dataset_type)
             # get scene year (will change how data is downloaded)
             scene_year = Dataset.get_scene_year(scene_name)
             if scene_year == "2014" or scene_year == "2003":
-                # Get perfect suffix from dataset ('-imperfect' or '-perfect')
-                scene_suffix = Dataset.get_perfect_suffix(dataset_type)
-                # Download dataset from middlebury servers
-                # Get name of scene data folder
-                if scene_year == "2014":
-                    scene_output_folder = os.path.join(output_folder,scene_name+scene_suffix)
-                elif scene_year == "2003":
-                    scene_output_folder = os.path.join(output_folder,scene_name)
-                # Define destination name for zip file
-                if scene_year == "2014":
-                    zip_filepath = os.path.join(output_folder,scene_name+scene_suffix+".zip")
-                elif scene_year == "2003":
-                    zip_filepath = os.path.join(output_folder,scene_name+".zip")
-                # Check scene folder doesn't already exist
-                if not os.path.exists(scene_output_folder):
-                    # Check zip file doesn't already exist
-                    if not os.path.exists(zip_filepath):
-                        print("Downloading from: "+url)
-                        # download file from middlebury server
-                        wget.download(url, zip_filepath, bar=Dataset.bar_progress)
-                    else:
-                        msg = "Zip file for dataset already exists here,"
-                        msg+= "skipping download of file: "+zip_filepath
-                        print(msg)
-                    print("Extracting zip...")
-                    # unzip downloaded file
-                    with zipfile.ZipFile(zip_filepath,"r") as zip_ref:
-                        zip_ref.extractall(output_folder)
-                    if scene_year == "2003":
-                        os.rename(
-                            os.path.join(output_folder,scene_name.lower()),scene_output_folder)
-                        os.rename(
-                            os.path.join(scene_output_folder,"im2.png"),
-                            os.path.join(scene_output_folder,"im0.png"))
-                        os.rename(
-                            os.path.join(scene_output_folder,"im6.png"),
-                            os.path.join(scene_output_folder,"im1.png"))
-                        os.rename(
-                            os.path.join(scene_output_folder,"disp2.png"),
-                            os.path.join(scene_output_folder,"disp0.png"))
-                        os.remove(os.path.join(scene_output_folder,"disp6.png"))
-                    # removing zip file
-                    os.remove(zip_filepath)
-                else:
-                    print("Dataset already exists here, skipping re-download of "+scene_name)
+                Dataset.download_scene_2014_2003_dataset(scene_name, output_folder, 
+                                                         url, scene_year, dataset_type)
             elif scene_year == "2005":
-                scene_output_folder = os.path.join(output_folder,scene_name)
-                # Check scene folder doesn't already exist
-                if not os.path.exists(scene_output_folder):
-                    # Create scene folder
-                    os.makedirs(scene_output_folder)
-                    img0_filepath = os.path.join(scene_output_folder,"im0.png")
-                    img1_filepath = os.path.join(scene_output_folder,"im1L.png")
-                    disp_filepath = os.path.join(scene_output_folder,"disp0.png")
-                    #TODO find cal data
-                    filepaths = [img0_filepath,img1_filepath,disp_filepath]
-                    base_url = url
-                    urls = ["Illum1/Exp1/view1.png","Illum2/Exp1/view5.png","disp1.png"]
-                    urls = [base_url + url for url in urls]
-                    print("Downloading from: "+base_url)
-                    for index, url in enumerate(urls):
-                        filepath = filepaths[index]
-                        # Check file doesn't already exist
-                        if not os.path.exists(filepath):
-                            # download file from middlebury server
-                            wget.download(url, filepath, bar=Dataset.bar_progress)
-                        else:
-                            msg = "Image file for dataset already exists here,"
-                            msg+= "skipping download of file: "+filepath
-                            print(msg)
-                else:
-                    print("Dataset already exists here, skipping re-download of "+scene_name)
+                Dataset.download_scene_2005_data(scene_name, output_folder, url)
 
         else:
             raise Exception('Output folder not found for storing datasets')

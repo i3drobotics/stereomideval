@@ -11,6 +11,7 @@ with open("../README.md", "r") as fh:
 with open("../version.txt", "r") as fh:
     version = fh.read()
 
+
 class CleanCommand(Command):
     """Custom clean command to tidy up the project root."""
     CLEAN_FILES = './build ./dist ./*.pyc ./*.tgz ./*.egg-info ./__pycache__'.split(' ')
@@ -23,7 +24,7 @@ class CleanCommand(Command):
 
     boolean_options = ['all']
 
-    def __init__(self,dist):
+    def __init__(self, dist):
         self.all = None
         super().__init__(dist)
 
@@ -47,6 +48,7 @@ class CleanCommand(Command):
                 print('removing %s' % relpath(path))
                 rmtree(path)
 
+
 setuptools.setup(
     name="stereo-mideval",
     version=version,
@@ -57,10 +59,10 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/i3drobotics/stereomideval",
     packages=setuptools.find_packages(),
-    package_dir={'stereomideval':'stereomideval'},
+    package_dir={'stereomideval': 'stereomideval'},
     install_requires=[
-        'numpy; python_version == "3.5"','numpy==1.19.3; python_version > "3.5"',
-        'opencv-python','requests','wget','beautifulsoup4'
+        'numpy; python_version == "3.5"', 'numpy==1.19.3; python_version > "3.5"',
+        'opencv-python', 'requests', 'wget', 'beautifulsoup4'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
