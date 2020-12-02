@@ -7,7 +7,7 @@ class DatasetType:
     exposure_changed = 'E'
     lighting_changed = 'L'
     perfect = 'P'
-    SCENE_CHANGED_TYPES = [exposure_changed,lighting_changed]
+    SCENE_CHANGED_TYPES = [exposure_changed, lighting_changed]
 
 
 class CalibrationData:

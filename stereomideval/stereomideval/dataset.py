@@ -600,7 +600,7 @@ class Dataset:
             # get scene year (will change how data is downloaded)
             scene_year = Dataset.get_scene_year(scene_name)
             if scene_year == "2014" or scene_year == "2003":
-                Dataset.download_scene_2014_2003_dataset(scene_name, output_folder, 
+                Dataset.download_scene_2014_2003_dataset(scene_name, output_folder,
                                                          url, scene_year, dataset_type)
             elif scene_year == "2005":
                 Dataset.download_scene_2005_data(scene_name, output_folder, url)
