@@ -4,6 +4,7 @@ import numpy as np
 from stereomideval.dataset import Dataset
 from stereomideval.exceptions import ImageSizeNotEqual, PathNotFound, InvalidSceneName
 
+
 def test_catch_invalid_image_sizes():
     """Test catching invalid image sizes"""
     image_a = np.zeros((5, 5))
@@ -26,4 +27,3 @@ def test_catch_invalid_scene_name():
         InvalidSceneName.validate_scene_list(scene_name, Dataset.get_scene_list())
     with pytest.raises(InvalidSceneName):
         InvalidSceneName.validate_scene_info_list(scene_name, Dataset.get_training_scene_list())
-    

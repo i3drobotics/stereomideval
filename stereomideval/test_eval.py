@@ -4,6 +4,7 @@ import numpy as np
 from stereomideval.eval import Eval, Metric
 from stereomideval.exceptions import ImageSizeNotEqual
 
+
 def test_init_eval():
     """Test initalising Eval class"""
     Eval()
