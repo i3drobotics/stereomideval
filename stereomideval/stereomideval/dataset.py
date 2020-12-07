@@ -286,6 +286,7 @@ class Dataset:
             disp_image, _ = Dataset.load_pfm(disp_filename)
         elif scene_year == "2003" or scene_year == "2005":
             disp_image = cv2.imread(disp_filename, cv2.IMREAD_UNCHANGED)
+            disp_image /= 4
         if display_images:
             # Display disparity image in opencv window
             norm_disp_image = Dataset.normalise_pfm_data(disp_image)
