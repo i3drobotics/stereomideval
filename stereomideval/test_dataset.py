@@ -1,7 +1,8 @@
 """This module tests Dataset functionality in stereomideval module"""
 import pytest
 import validators
-from stereomideval.dataset import Dataset
+from stereomideval.structures import DatasetType
+from stereomideval.dataset import Dataset, SceneInfo
 from stereomideval.exceptions import InvalidSceneName
 
 
@@ -27,3 +28,17 @@ def test_catch_invalid_scene_name():
     """Test valid scene names"""
     with pytest.raises(InvalidSceneName):
         InvalidSceneName.validate_scene_list("INVALID SCENE NAME", Dataset.get_scene_list())
+
+def test_2003_disparity():
+    """Test 2003 load disparity image"""
+    DATASET_FOLDER = os.path.join(os.getcwd(),"datasets") #Path to download datasets
+    if not os.path.exists(DATASET_FOLDER):
+        os.makedirs(DATASET_FOLDER)
+    scene_info = SceneInfo(Dataset.Teddy, DatasetType.imperfect, 1.0)
+    scene_name = scene_info.scene_name
+    dataset_type = scene_info.dataset_type
+    Dataset.download_scene_data(scene_name,DATASET_FOLDER,dataset_type)
+    scene_data = Dataset.load_scene_data(
+        scene_name=scene_name,dataset_folder=DATASET_FOLDER,
+        dataset_type=dataset_type)
+    
