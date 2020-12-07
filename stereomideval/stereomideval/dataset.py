@@ -290,10 +290,10 @@ class Dataset:
             disp_image = cv2.imread(disp_filename, cv2.IMREAD_UNCHANGED)
         elif scene_year == "2003":
             disp_image = cv2.imread(disp_filename, cv2.IMREAD_UNCHANGED)
-            orig_dtype = disp_image.dtype
-            disp_image = disp_image.astype(np.float32)
+            #orig_dtype = disp_image.dtype
+            #disp_image = disp_image.astype(np.float32)
             #disp_image /= 4
-            disp_image = disp_image.astype(orig_dtype)
+            #disp_image = disp_image.astype(orig_dtype)
         if display_images:
             # Display disparity image in opencv window
             norm_disp_image = Dataset.normalise_pfm_data(disp_image)
