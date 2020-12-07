@@ -1,6 +1,7 @@
 """This module tests Dataset functionality in stereomideval module"""
 import pytest
 import validators
+import os
 from stereomideval.structures import DatasetType
 from stereomideval.dataset import Dataset, SceneInfo
 from stereomideval.exceptions import InvalidSceneName
