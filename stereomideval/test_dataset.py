@@ -41,7 +41,7 @@ def test_2003_disparity():
     scene_name = scene_info.scene_name
     dataset_type = scene_info.dataset_type
     Dataset.download_scene_data(scene_name,DATASET_FOLDER,dataset_type)
-    scene_data = Dataset.load_scene_data(
+    Dataset.load_scene_data(
         scene_name=scene_name,dataset_folder=DATASET_FOLDER,
         dataset_type=dataset_type)
     

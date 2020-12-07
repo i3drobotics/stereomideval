@@ -54,4 +54,6 @@ for scene_info in Dataset.get_training_scene_list():
     match_data = MatchData(scene_info, match_result)
     match_data_list.append(match_data)
 
+    Eval.display_results(match_result,wait=500)
+
 Eval.evaluate_match_data_list(match_data_list, GET_METRIC_RANK, GET_AV_METRIC_RANK)

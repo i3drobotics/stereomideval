@@ -274,8 +274,10 @@ class Dataset:
             perfect_suffix = Dataset.get_perfect_suffix(load_perfect)
             # Get name of disparity image (pfm) in folder
             disp_filename = os.path.join(dataset_folder, scene_name+perfect_suffix, "disp0.pfm")
-        elif scene_year == "2003" or scene_year == "2005":
-            disp_filename = os.path.join(dataset_folder, scene_name, "disp0.png")
+        elif scene_year == "2003":
+            disp_filename = os.path.join(dataset_folder, scene_name, "disp2.pgm")
+        elif scene_year == "2005":
+            disp_filename = os.path.join(dataset_folder, scene_name, "disp1.png")
         # Check disparity file exists
         if not os.path.exists(disp_filename):
             print("Disparity pfm file does not exist")
@@ -337,12 +339,19 @@ class Dataset:
             left_image (numpy): 2D image from left camera, loaded from scene data
             right_image (numpy): 2D image from right camera, loaded from scene data
         """
-        left_image_filename = "im0.png"
-        right_image_filename = "im1{}.png".format(Dataset.get_image_suffix(dataset_type))
         scene_year = Dataset.get_scene_year(scene_name)
         perfect_suffix = ""
         if scene_year == "2014":
             perfect_suffix = Dataset.get_perfect_suffix(dataset_type)
+            left_image_filename = "im0.png"
+            right_image_filename = "im1{}.png".format(Dataset.get_image_suffix(dataset_type))
+        elif scene_year == "2003":
+            left_image_filename = "im2.ppm"
+            right_image_filename = "im6.ppm"
+        elif scene_year == "2005":
+            left_image_filename = "view1.png"
+            right_image_filename = "view5.png"
+        
         # Define left and right image files in scene folder
         left_image_filepath = os.path.join(dataset_folder,
                                            scene_name+perfect_suffix,
@@ -449,10 +458,10 @@ class Dataset:
             perfect_suffix = Dataset.get_perfect_suffix(dataset_type)
             url = base_url+scene_name+perfect_suffix+".zip"
         elif scene_year == "2003":
-            scene_name = scene_name.lower()
-            base_url = "https://vision.middlebury.edu/stereo/data/scenes2003/"
-            url_suffix = "newdata/{}/{}-png-2.zip"
-            url = base_url+url_suffix.format(scene_name, scene_name)
+            #scene_name = scene_name.lower()
+            url = "https://vision.middlebury.edu/stereo/data/scenes2003/newdata/full/"
+            #url_suffix = "newdata/{}/{}-png-2.zip"
+            #url = base_url+url_suffix.format(scene_name, scene_name)
         elif scene_year == "2005":
             # Images are not stored in zip file for this year.
             # Will return base url for this scene instead
@@ -509,9 +518,9 @@ class Dataset:
         if not os.path.exists(scene_output_folder):
             # Create scene folder
             os.makedirs(scene_output_folder)
-            img0_filepath = os.path.join(scene_output_folder, "im0.png")
-            img1_filepath = os.path.join(scene_output_folder, "im1L.png")
-            disp_filepath = os.path.join(scene_output_folder, "disp0.png")
+            img0_filepath = os.path.join(scene_output_folder, "view1.png")
+            img1_filepath = os.path.join(scene_output_folder, "view5.png")
+            disp_filepath = os.path.join(scene_output_folder, "disp1.png")
             # TODO: find cal data
             filepaths = [img0_filepath, img1_filepath, disp_filepath]
             base_url = url
@@ -532,30 +541,61 @@ class Dataset:
             print("Dataset already exists here, skipping re-download of "+scene_name)
 
     @staticmethod
-    def download_scene_2014_2003_dataset(scene_name, output_folder, url, scene_year, dataset_type):
+    def download_scene_2003_data(scene_name, output_folder, url):
         """
-        Download scene data for 2014 or 2003 Middlebury data
+        Download scene data for 2003 Middlebury data
 
         Parameters:
             scene_name (string): Scene to download from Middlesbury stereo dataset (2014)
             output_folder (string): Path to download scene data
             url (string): url to download from
-            scene_year (string): '2014' or '2003'
+        """
+        scene_output_folder = os.path.join(output_folder, scene_name)
+        # Check scene folder doesn't already exist
+        if not os.path.exists(scene_output_folder):
+            # Create scene folder
+            #os.makedirs(scene_output_folder)
+            #img0_filepath = os.path.join(scene_output_folder, "im2.pgm")
+            #img1_filepath = os.path.join(scene_output_folder, "im6.pgm")
+            #disp_filepath = os.path.join(scene_output_folder, "disp2.ppm")
+            # TODO: find cal data
+            base_url = url
+            scene_name = scene_name.lower()
+            zip_filename = "{}F-ppm-2.zip".format(scene_name)
+            zip_filepath = os.path.join(output_folder,zip_filename)
+            zip_url = base_url+zip_filename
+            # download file from middlebury server
+            print("Downloading from: "+zip_url)
+            wget.download(zip_url, zip_filepath, bar=Dataset.bar_progress)
+
+            # unzip downloaded file
+            with zipfile.ZipFile(zip_filepath, "r") as zip_ref:
+                zip_ref.extractall(output_folder)
+            # removing zip file
+            os.remove(zip_filepath)
+
+            os.rename(os.path.join(output_folder,"teddyF"),scene_output_folder)
+        else:
+            print("Dataset already exists here, skipping re-download of "+scene_name)
+
+    @staticmethod
+    def download_scene_2014_dataset(scene_name, output_folder, url, dataset_type):
+        """
+        Download scene data for 2014 Middlebury data
+
+        Parameters:
+            scene_name (string): Scene to download from Middlesbury stereo dataset (2014)
+            output_folder (string): Path to download scene data
+            url (string): url to download from
             dataset_type (DatasetType): used to get scene suffix folder naming
         """
         # Get perfect suffix from dataset ('-imperfect' or '-perfect')
         scene_suffix = Dataset.get_perfect_suffix(dataset_type)
         # Download dataset from middlebury servers
         # Get name of scene data folder
-        if scene_year == "2014":
-            scene_output_folder = os.path.join(output_folder, scene_name+scene_suffix)
-        elif scene_year == "2003":
-            scene_output_folder = os.path.join(output_folder, scene_name)
+        scene_output_folder = os.path.join(output_folder, scene_name+scene_suffix)
         # Define destination name for zip file
-        if scene_year == "2014":
-            zip_filepath = os.path.join(output_folder, scene_name+scene_suffix+".zip")
-        elif scene_year == "2003":
-            zip_filepath = os.path.join(output_folder, scene_name+".zip")
+        zip_filepath = os.path.join(output_folder, scene_name+scene_suffix+".zip")
         # Check scene folder doesn't already exist
         if not os.path.exists(scene_output_folder):
             # Check zip file doesn't already exist
@@ -571,19 +611,6 @@ class Dataset:
             # unzip downloaded file
             with zipfile.ZipFile(zip_filepath, "r") as zip_ref:
                 zip_ref.extractall(output_folder)
-            if scene_year == "2003":
-                os.rename(
-                    os.path.join(output_folder, scene_name.lower()), scene_output_folder)
-                os.rename(
-                    os.path.join(scene_output_folder, "im2.png"),
-                    os.path.join(scene_output_folder, "im0.png"))
-                os.rename(
-                    os.path.join(scene_output_folder, "im6.png"),
-                    os.path.join(scene_output_folder, "im1.png"))
-                os.rename(
-                    os.path.join(scene_output_folder, "disp2.png"),
-                    os.path.join(scene_output_folder, "disp0.png"))
-                os.remove(os.path.join(scene_output_folder, "disp6.png"))
             # removing zip file
             os.remove(zip_filepath)
         else:
@@ -608,11 +635,13 @@ class Dataset:
             url = Dataset.get_url_from_scene(scene_name, dataset_type)
             # get scene year (will change how data is downloaded)
             scene_year = Dataset.get_scene_year(scene_name)
-            if scene_year == "2014" or scene_year == "2003":
-                Dataset.download_scene_2014_2003_dataset(scene_name, output_folder,
-                                                         url, scene_year, dataset_type)
+            if scene_year == "2014":
+                Dataset.download_scene_2014_dataset(scene_name, output_folder,
+                                                    url, dataset_type)
             elif scene_year == "2005":
                 Dataset.download_scene_2005_data(scene_name, output_folder, url)
+            elif scene_year == "2003":
+                Dataset.download_scene_2003_data(scene_name, output_folder, url)
 
         else:
             raise Exception('Output folder not found for storing datasets')
