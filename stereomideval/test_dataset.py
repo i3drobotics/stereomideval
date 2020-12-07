@@ -2,6 +2,7 @@
 import pytest
 import validators
 import os
+import ssl
 from stereomideval.structures import DatasetType
 from stereomideval.dataset import Dataset, SceneInfo
 from stereomideval.exceptions import InvalidSceneName
@@ -32,6 +33,7 @@ def test_catch_invalid_scene_name():
 
 def test_2003_disparity():
     """Test 2003 load disparity image"""
+    ssl._create_default_https_context = ssl._create_unverified_context
     DATASET_FOLDER = os.path.join(os.getcwd(),"datasets") #Path to download datasets
     if not os.path.exists(DATASET_FOLDER):
         os.makedirs(DATASET_FOLDER)
