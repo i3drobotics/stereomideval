@@ -292,7 +292,7 @@ class Dataset:
             disp_image = cv2.imread(disp_filename, cv2.IMREAD_UNCHANGED)
             orig_dtype = disp_image.dtype
             disp_image = disp_image.astype(np.float32)
-            disp_image /= 4
+            #disp_image /= 4
             disp_image = disp_image.astype(orig_dtype)
         if display_images:
             # Display disparity image in opencv window
@@ -421,7 +421,7 @@ class Dataset:
                                                 cal_data.doffs, cal_data.baseline)
         elif scene_year == "2003":
             depth_image = None
-            ndisp = 64 # 256/4 (scaling factor of 4 for 2003 dataset)
+            ndisp = 256 # 256*4 (scaling factor of 4 for 2003 dataset)
         else:
             depth_image = None
             # TODO: replace this with list of files that don't have cal data on website
