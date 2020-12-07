@@ -410,6 +410,9 @@ class Dataset:
             # Calculate depth image from disparity using calibration file
             depth_image = Dataset.disp_to_depth(disp_image, cal_data.focal_length,
                                                 cal_data.doffs, cal_data.baseline)
+        elif scene_year == "2003":
+            depth_image = None
+            ndisp = 64 # 256/4 (scaling factor of 4 for 2003 dataset)
         else:
             depth_image = None
             # TODO: replace this with list of files that don't have cal data on website
