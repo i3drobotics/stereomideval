@@ -286,7 +286,7 @@ class Dataset:
             disp_image, _ = Dataset.load_pfm(disp_filename)
         elif scene_year == "2005":
             disp_image = cv2.imread(disp_filename, cv2.IMREAD_UNCHANGED)
-        elif scene_year == "2003" 
+        elif scene_year == "2003":
             disp_image = cv2.imread(disp_filename, cv2.IMREAD_UNCHANGED)
             orig_dtype = disp_image.dtype
             disp_image = disp_image.astype(np.float32)
