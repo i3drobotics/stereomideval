@@ -146,7 +146,7 @@ for eval_data in eval_data_list:
         print("{}:{}".format(eval_result.metric,eval_result.result))
 
 # Iterate average metrics across all scenes
-for metric_average in eval_data_list:
+for metric_average in metric_average_list:
     # Print metric and average result across all scenes
     print("{}:{}".format(metric_average.metric,metric_average.result))
 ```
