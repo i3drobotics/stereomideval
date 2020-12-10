@@ -26,6 +26,7 @@ for scene_info in Dataset.get_training_scene_list():
     scene_data = Dataset.load_scene_data(
         scene_name=scene_name,dataset_folder=DATASET_FOLDER,
         dataset_type=dataset_type,display_images=DISPLAY_IMAGES)
+    # Scene data class contains the following data:
     left_image = scene_data.left_image
     right_image = scene_data.right_image
     ground_truth_disp_image = scene_data.disp_image
