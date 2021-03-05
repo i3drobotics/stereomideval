@@ -13,10 +13,10 @@ def test_invalid_pixels():
     invalid_signifier = 0
     test_image = np.zeros((5, 6))
     # all pixels should be invalid as image is full of zeros
-    assert Metric.calc_invalid_pixels(test_image,invalid_signifier) == test_image.size
+    assert Metric.calc_coverage(test_image,invalid_signifier) == 0
     test_image = np.ones((5, 6))
     # all pixels should be valid as image is full of ones
-    assert Metric.calc_invalid_pixels(test_image,invalid_signifier) == 0
+    assert Metric.calc_coverage(test_image,invalid_signifier) == 100
 
 def test_catch_invalid_image_sizes():
     """Test catching invalid image sizes"""

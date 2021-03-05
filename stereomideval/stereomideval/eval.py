@@ -251,11 +251,11 @@ class Metric:
     time = "time"
     time_mp = "time/MP"
     time_gd = "time/Gdisp"
-    invalid_pixels = "invalid_pixels"
+    coverage = "coverage"
     TIME_METRICS = [time, time_mp, time_gd]
     BAD_METRICS = [bad050, bad100, bad200, bad400]
     QUANTILE_METRICS = [a50, a90, a95, a99]
-    NON_MIDEVAL_METRICS = [invalid_pixels]
+    NON_MIDEVAL_METRICS = [coverage]
 
     @staticmethod
     def get_metrics_list():
@@ -265,7 +265,7 @@ class Metric:
             m.bad050, m.bad100, m.bad200, m.bad400,
             m.avgerr, m.rms,
             m.a50, m.a90, m.a95, m.a99,
-            m.time, m.time_mp, m.time_gd, m.invalid_pixels
+            m.time, m.time_mp, m.time_gd, m.coverage
         ]
 
     @staticmethod
@@ -464,10 +464,12 @@ class Metric:
 
     
     @staticmethod
-    def calc_invalid_pixels(test_data,invalid_value=0):
+    def calc_coverage(test_data,invalid_value=0):
         # count pixels with value of zero
-        invalid_count = np.count_nonzero(test_data==invalid_value)
-        return invalid_count
+        valid_count = np.count_nonzero(test_data!=invalid_value)
+        print(valid_count)
+        coverage = (valid_count/test_data.size)*100
+        return coverage
 
 class Eval:
     """Evaluate disparity image against ground truth"""
@@ -958,8 +960,8 @@ class Eval:
             result = Metric.calc_rmse(match_result.ground_truth, match_result.match_result)
         elif metric == Metric.avgerr:
             result = Metric.calc_avgerr(match_result.ground_truth, match_result.match_result)
-        elif metric == Metric.invalid_pixels:
-            result = Metric.calc_invalid_pixels(match_result.match_result)
+        elif metric == Metric.coverage:
+            result = Metric.calc_coverage(match_result.match_result)
 
         metric_result = EvaluationData.EvaluationResult(metric, result)
         return metric_result
